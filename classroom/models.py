@@ -18,6 +18,7 @@ class Material(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=3000)
     created_at = models.DateTimeField()
+    room = models.ForeignKey(Room, default='',on_delete=models.CASCADE, related_name='materials')
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
