@@ -14,20 +14,19 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Features</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Pricing</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled">Disabled</a>
+                <a class="nav-link" aria-current="page" href="{% url 'index' %}">Home</a>
               </li>
             </ul>
+            <div>
+              {% if user.is_authenticated %}
+                    Signed in as <strong>{{ user.username }}</strong>.
+                    <a class="btn" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a class="btn btn-sm btn-primary" href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
           </div>
         </div>
       </nav>
