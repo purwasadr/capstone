@@ -1,16 +1,22 @@
 import os, random, string
+from tokenize import String
 from webbrowser import get
 from django import forms
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.views import View
-from .forms import AddRoomForm
-from .models import Material, Room, User
 from django.contrib import messages
+from django.utils.timezone import now
+from django.utils.decorators import method_decorator
+
+from .forms import AddMaterialForm, AddRoomForm, AddTaskForm
+from .models import Material, MaterialFile, Room, Task, User
+
 
 # Create your views here.
 def generate_room_code():
@@ -75,6 +81,7 @@ def register(request):
     else:
         return render(request, 'classroom/register.html')
 
+@login_required()
 def index(request):
     rooms = Room.objects.all()
     return render(request, 'classroom/index.html', {
@@ -82,7 +89,7 @@ def index(request):
     })
     # return FileResponse(default_storage.open('material_file_1/Code1.png'))
 
-
+@method_decorator(login_required, name='dispatch')
 class AddRoom(View):
     template_path = 'classroom/add_room.html'
 
@@ -106,14 +113,62 @@ class AddRoom(View):
                 room_code = room_code,
                 author = request.user
             )
-
-class MaterialView(View):
+@method_decorator(login_required, name='dispatch')
+class MaterialsView(View):
     template_path = 'classroom/materials.html'
-    def get(self, request):
-        materials = Material.objects.order_by('-created_at').all()
+    def get(self, request, room_id):
+        materials = Material.objects.filter(room=room_id).order_by('-created_at').all()
         return render(request, self.template_path, {
+            'room_id': room_id,
             'materials': materials
         })
     
     def post(self, request):
+        pass
+
+@method_decorator(login_required, name='dispatch')
+class AddMaterialView(View):
+    template_name = 'classroom/add-material.html'
+
+    def get(self, request, room_id):
+        return render(request, self.template_name, {
+            'room_id': room_id,
+            'form': AddMaterialForm()
+        })
+
+    def post(self, request, room_id):
+        form = AddMaterialForm(request.POST)
+        files = request.FILES.getlist('files')
+        
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+    
+            material =  Material.objects.create(title=title, description=description, created_at=now(), room=Room.objects.get(pk=room_id))
+
+            for file in files:
+                MaterialFile.objects.create(file=file, material=material)
+            return HttpResponseRedirect(reverse('materials', args=(room_id,)))
+
+class TaskView(View):
+    template_name = 'classroom/tasks.html'
+
+    def get(self, request, room_id):
+        tasks = Task.objects.filter(room=room_id).order_by('-created_at').all()
+        return render(request, self.template_name, {
+            'room_id': room_id,
+            'tasks': tasks
+        })
+
+class AddTaskView(View):
+    template_name = 'classroom/add-task.html'
+
+    def get(self, request, room_id):
+        
+        return render(request, self.template_name, {
+            'room_id': room_id,
+            'form': AddTaskForm(),
+        })
+
+    def post(self, request, room_id):
         pass
