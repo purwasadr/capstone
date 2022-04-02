@@ -8,8 +8,9 @@
     {% for room in rooms %}    
         <div class="card mb-3">
             <div class="card-body">
-                <div class="cart-title">{{ room.name }}</div>
-                <a class="stretched-link" href="{% url 'materials' %}"></a>
+                <div class="mb-5">{{ room.name }}</div>
+                <div class="small">{{ room.author.username }}</div>
+                <a class="stretched-link" href="{% url 'materials' room.id %}"></a>
             </div>
         </div>
     {% empty %}
