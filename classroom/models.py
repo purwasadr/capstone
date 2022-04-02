@@ -1,4 +1,5 @@
 from multiprocessing.reduction import AbstractReducer
+import os
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.timezone import now
@@ -36,6 +37,9 @@ def task_directory_path(instance, filename):
 class MaterialFile(models.Model):
     file = models.FileField(upload_to=material_directory_path)
     material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='files')
+
+    def get_filename(self):
+        return os.path.split(self.file.name)[1]
 
 class TaskFile(models.Model):
     file = models.FileField(upload_to=material_directory_path)
