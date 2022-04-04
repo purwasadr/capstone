@@ -1,13 +1,10 @@
+import json
 import os, random, string
-from tokenize import String
-from webbrowser import get
-from django import forms
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, HttpResponseRedirect
+from django.http import FileResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.views import View
 from django.contrib import messages
@@ -15,7 +12,7 @@ from django.utils.timezone import now
 from django.utils.decorators import method_decorator
 
 from .forms import AddMaterialForm, AddRoomForm, AddTaskForm
-from .models import Material, MaterialFile, Room, Task, User
+from .models import Material, MaterialComment, MaterialFile, Room, Task, User
 
 
 # Create your views here.
@@ -147,8 +144,82 @@ class AddMaterialView(View):
             material =  Material.objects.create(title=title, description=description, created_at=now(), room=Room.objects.get(pk=room_id))
 
             for file in files:
-                MaterialFile.objects.create(file=file, material=material)
+                MaterialFile.objects.create(filename=file.name, file=file, material=material)
             return HttpResponseRedirect(reverse('materials', args=(room_id,)))
+
+
+def material_file(request, material_id):
+    if not request.user.is_authenticated:
+        return
+
+    material = MaterialFile.objects.get(pk=material_id)
+    file = material.file
+
+    return FileResponse(file, as_attachment=True, filename=material.filename)
+
+def material_comment(request, room_id, material_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'You must authenticated'}, status=401)
+    
+    try:
+        material = Material.objects.get(pk=material_id)
+    except Material.DoesNotExist:
+        return JsonResponse({"error": "Material not found."}, status=404)
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        if data.get('text') != None:
+            MaterialComment.objects.create(
+                text=data.get('text'),
+                material=material,
+                author=request.user
+            )
+        
+        comments = []
+
+        for comment in material.comments.all():
+            comments.append({
+                'id': comment.id,
+                'text': comment.text,
+                'created_at': comment.created_at,
+                'author': comment.author.username,
+            })
+
+        return JsonResponse({
+                'success': 'Success add comment',
+                'data': comments
+            },
+            status=201
+        )
+
+    comments_json = []
+
+    if request.GET.get('isAll') == 'true':
+        comments = material.comments.all()  
+    else:
+        comments = material.get_comments_lastest_items(3)
+    
+    for comment in comments:
+        comments_json.append({
+            'id': comment.id,
+            'text': comment.text,
+            'created_at': comment.created_at,
+            'author': comment.author.username,
+        })
+
+    return JsonResponse({
+                'success': 'Success',
+                'data': comments_json
+            },
+            status=201
+        )
+
+    
+
+
+
+    
 
 class TaskView(View):
     template_name = 'classroom/tasks.html'
