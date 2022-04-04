@@ -1,19 +1,8 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
 
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <ul class="nav nav-pills nav-justified mt-5 mb-4">
-                <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="#">Materials</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">Tasks</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
+    {% include 'classroom/nav-room.html' %}
+    
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'add-task' room_id %}" class="btn btn-primary">Add Material</a>
     </div>
