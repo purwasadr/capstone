@@ -42,6 +42,14 @@ class Material(models.Model):
     def __str__(self):
         return f'{self.title}'
 
+    def get_comments_lastest_items(self, limit: int):
+        comments_count = self.comments.count()
+        comments_offset = comments_count - limit
+        return self.comments.all()[comments_offset:comments_count]
+
+    def get_comments_lastest_3_items(self):
+        return self.get_comments_lastest_items(3)
+
 class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
@@ -73,8 +81,10 @@ class TaskFile(models.Model):
 class MaterialComment(models.Model):
     text = models.CharField(max_length=3000)
     created_at = models.DateTimeField(default=now)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='comments', default='')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='material_comments')
 
     def __str__(self):
         return f'{self.author.username}'
 
+   
