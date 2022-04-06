@@ -1,10 +1,11 @@
+import datetime
 import json
 import os, random, string
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.contrib import messages
@@ -12,7 +13,7 @@ from django.utils.timezone import now
 from django.utils.decorators import method_decorator
 
 from .forms import AddMaterialForm, AddRoomForm, AddTaskForm
-from .models import Material, MaterialComment, MaterialFile, Room, Task, User
+from .models import Material, MaterialComment, MaterialFile, Room, Task, TaskFile, User
 
 
 # Create your views here.
@@ -84,7 +85,6 @@ def index(request):
     return render(request, 'classroom/index.html', {
         'rooms': rooms
     })
-    # return FileResponse(default_storage.open('material_file_1/Code1.png'))
 
 @method_decorator(login_required, name='dispatch')
 class AddRoom(View):
@@ -110,14 +110,17 @@ class AddRoom(View):
                 room_code = room_code,
                 author = request.user
             )
+            return HttpResponseRedirect(reverse('index'))
 @method_decorator(login_required, name='dispatch')
 class MaterialsView(View):
     template_path = 'classroom/materials.html'
     def get(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
         materials = Material.objects.filter(room=room_id).order_by('-created_at').all()
         return render(request, self.template_path, {
-            'room_id': room_id,
-            'materials': materials
+            'room': room,
+            'materials': materials,
+            'page': 'materials'
         })
     
     def post(self, request):
@@ -216,19 +219,16 @@ def material_comment(request, room_id, material_id):
         )
 
     
-
-
-
-    
-
 class TaskView(View):
     template_name = 'classroom/tasks.html'
 
     def get(self, request, room_id):
         tasks = Task.objects.filter(room=room_id).order_by('-created_at').all()
+       
         return render(request, self.template_name, {
             'room_id': room_id,
-            'tasks': tasks
+            'tasks': tasks,
+            'page': 'tasks'
         })
 
 class AddTaskView(View):
@@ -242,4 +242,39 @@ class AddTaskView(View):
         })
 
     def post(self, request, room_id):
-        pass
+        form = AddTaskForm(request.POST)
+        files = request.FILES.getlist('files')
+        
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            date = form.cleaned_data['due_date']
+            time = form.cleaned_data['due_time'] or '23:59'
+
+            if date:
+                datetime_field = datetime.datetime.fromisoformat(f'{date}T{time}')
+            else:
+                datetime_field = None
+            
+            task = Task.objects.create(
+                title=title,
+                description=description,
+                due_datetime=datetime_field,
+                room=Room.objects.get(pk=room_id)
+            )
+
+            for file in files:
+                TaskFile.objects.create(filename=file.name, file=file, task=task)
+            return HttpResponseRedirect(reverse('tasks', args=(room_id,)))
+
+class TaskDetailView(View):
+    template_name = 'classroom/task-detail.html'
+
+    def get(self, request, room_id, task_id):
+        task = get_object_or_404(Task, pk=task_id)
+        room = get_object_or_404(Room, pk=room_id)
+
+        return render(request, self.template_name, {
+            'room': room,
+            'task': task
+        })
