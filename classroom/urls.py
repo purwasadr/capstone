@@ -13,5 +13,6 @@ urlpatterns = [
     path('<int:room_id>/materials/<int:material_id>/comments', views.material_comment, name='comments'),
     path('<int:room_id>/materials', views.MaterialsView.as_view(), name='materials'),
     path('<int:room_id>/tasks/add', views.AddTaskView.as_view(), name='add-task'),
-    path('<int:room_id>/tasks', views.TaskView.as_view(), name='tasks')
+    path('<int:room_id>/tasks', views.TaskView.as_view(), name='tasks'),
+    path('<int:room_id>/tasks/<int:task_id>/detail', views.TaskDetailView.as_view(), name='task-detail'),
 ]
