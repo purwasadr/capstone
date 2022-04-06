@@ -62,17 +62,19 @@ class AddTaskForm(forms.Form):
             attrs={'class': 'form-control', 'rows': '4'}
         )
     )
-    date = forms.DateTimeField(
+    due_date = forms.DateField(initial='No due date',
         label='Date',
-        widget=forms.TimeInput(
+        widget=forms.DateInput(
             attrs={'class': 'form-control', 'type': 'date'}
         ),
+        required=False,
     )
-    time = forms.DateTimeField(
+    due_time = forms.TimeField(
         label='Time',
         widget=forms.TimeInput(
             attrs={'class': 'form-control', 'type': 'time'}
         ),
+        required=False,
     )
     files = forms.FileField(
         widget=forms.ClearableFileInput(
