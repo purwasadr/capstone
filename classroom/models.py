@@ -53,6 +53,7 @@ class Material(models.Model):
 class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
+    due_datetime = models.DateTimeField(null=True)
     created_at = models.DateTimeField(default=now)
     room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='tasks')
 
