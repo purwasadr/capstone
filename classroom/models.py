@@ -19,6 +19,9 @@ def material_directory_path(instance, filename):
 def task_directory_path(instance, filename):
         return 'task_file/{0}{1}'.format(generate_file_code(), ''.join(pathlib.Path(filename).suffixes))
 
+def task_submit_directory_path(instance, filename):
+        return 'task_submit_file/{0}{1}'.format(generate_file_code(), ''.join(pathlib.Path(filename).suffixes))
+
 class User(AbstractUser):
     pass
 
@@ -31,7 +34,7 @@ class Room(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms')
 
     def __str__(self):
-        return f'{self.name}'
+        return self.name
 
 class Material(models.Model):
     title = models.CharField(max_length=255)
@@ -40,7 +43,7 @@ class Material(models.Model):
     room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='materials')
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
     def get_comments_lastest_items(self, limit: int):
         comments_count = self.comments.count()
@@ -56,9 +59,10 @@ class Task(models.Model):
     due_datetime = models.DateTimeField(null=True)
     created_at = models.DateTimeField(default=now)
     room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='tasks')
+    users_submitted = models.ManyToManyField(User, blank=True, related_name='submitted_tasks')
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
 class MaterialFile(models.Model):
     filename = models.CharField(max_length=3000, default='')
@@ -66,18 +70,18 @@ class MaterialFile(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='files')
 
     def __str__(self):
-        return f'{self.filename}'
+        return self.filename
 
     def get_filename(self):
         return os.path.split(self.file.name)[1]
 
 class TaskFile(models.Model):
     filename = models.CharField(max_length=3000, default='')
-    file = models.FileField(upload_to=material_directory_path)
+    file = models.FileField(upload_to=task_directory_path)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='files')
 
     def __str__(self):
-        return f'{self.filename}'
+        return self.filename
 
 class MaterialComment(models.Model):
     text = models.CharField(max_length=3000)
@@ -86,6 +90,18 @@ class MaterialComment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='material_comments')
 
     def __str__(self):
-        return f'{self.author.username}'
+        return self.author.username
 
-   
+class TaskSubmit(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=now)
+    
+class TaskSubmitFile(models.Model):
+    filename = models.CharField(max_length=3000, default='')
+    file = models.FileField(upload_to=task_submit_directory_path)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submitted_files')
+    uploader =  models.ForeignKey(User, on_delete=models.CASCADE, related_name='submitted_task_files')
+
+    def __str__(self):
+        return self.filename
