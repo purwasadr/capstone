@@ -59,7 +59,7 @@ class Task(models.Model):
     due_datetime = models.DateTimeField(null=True)
     created_at = models.DateTimeField(default=now)
     room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='tasks')
-    # users_submitted = models.ManyToManyField(User, blank=True, through='TaskSubmit', related_name='submitted_tasks')
+    users_submitted = models.ManyToManyField(User, blank=True, through='TaskSubmit', related_name='submitted_tasks')
 
     def __str__(self):
         return self.title
