@@ -2,19 +2,31 @@
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form action="{% url 'add-task' room_id %}" method="post" enctype="multipart/form-data" >
+            <form action="{% url 'add-task' room_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-2">
-                        <label class="form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
-                        {{ field }}
-                        {% for error in field.errors %}
-                            <div class="invalid-feedback">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
+                <div class="mb-2">
+                    <label for="title" class="form-label">Title</label>
+                    <input class="form-control" type="text" name="title" id="title">
+                </div>
+                <div class="mb-2">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" name="description" id="description" rows="6"></textarea>
+                </div>
+                <div class="">
+                    <label for="Due Date" class="form-label">Due date</label>
+                    <div class="row">
+                        <div class="col mb-2">
+                            <input class="form-control" type="date" name="due_date" id="due_date">
+                        </div>
+                        <div class="col mb-2">
+                            <input class="form-control" type="time" name="due_time" id="due_time">
+                        </div>
                     </div>
-                {% endfor %}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="files">Files</label>
+                    <input type="file" name="files" class="form-control" multiple id="files">
+                </div>
                 <div class="d-flex justify-content-end">
                     <input class="btn btn-primary" type="submit" value="Create">
                 </div>
