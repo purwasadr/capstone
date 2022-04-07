@@ -2,10 +2,10 @@
     <div class="col-md-6">
         <ul class="nav nav-pills nav-justified mt-5 mb-4">
             <li class="nav-item">
-                <a class="nav-link {% if request.path == '/materials/1' %}active{% endif %} " aria-current="page" href="{% url 'materials' room_id %}">Materials</a>
+                <a class="nav-link {% if page == 'materials' %}active{% endif %} " aria-current="page" href="{% url 'materials' room_id %}">Materials</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tasks' room_id %}">Tasks</a>
+                <a class="nav-link {% if page == 'tasks' %}active{% endif %}" href="{% url 'tasks' room_id %}">Tasks</a>
             </li>
         </ul>
     </div>
