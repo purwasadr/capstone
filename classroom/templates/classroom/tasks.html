@@ -4,7 +4,7 @@
     {% include 'classroom/nav-room.html' %}
     
     <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add-task' room_id %}" class="btn btn-primary">Add Material</a>
+        <a href="{% url 'add-task' room_id %}" class="btn btn-primary">Add Task</a>
     </div>
 
     {% for task in tasks %}    
@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="cart-title fw-bold">{{ task.title }} <span class="fw-normal">{{ task.created_at }}</span></div>
                 <div class="cart-text">{{ task.description }}</div>
-                <a class="stretched-link" href=""></a>
+                <a class="stretched-link" href="{% url 'task-detail' room_id task.id %}"></a>
             </div>
         </div>
     {% empty %}
