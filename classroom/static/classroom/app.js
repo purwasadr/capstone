@@ -9,10 +9,19 @@ document.addEventListener('DOMContentLoaded', function() {
             toogleExpandComment(elTarget);
         }
     });
+
+    const formJoinRoom = document.querySelector('#form-join-room')
+    
+    if (formJoinRoom) {
+        formJoinRoom.addEventListener('submit', e => {
+            e.preventDefault()
+            joinRoom()
+        })
+    }
 });
 // document.querySelector('#sss').children
 function submitComment(elTarget) {
-    const { elCardMaterial, roomId, id, csrftoken } = commonFetchProperties(elTarget);
+    const { elCardMaterial, roomId, id, csrftoken } = cardFetchProperties(elTarget);
 
     const elInput = elTarget.parentElement.querySelector('.comment-input')
 
@@ -81,7 +90,7 @@ function toogleExpandComment(elToogleExpand) {
 }
 
 function getComments(elToogleExpand, isExpand) {
-    const { elCardMaterial, roomId, id, csrftoken } = commonFetchProperties(elToogleExpand);
+    const { elCardMaterial, roomId, id, csrftoken } = cardFetchProperties(elToogleExpand);
 
     fetch(`/${roomId}/materials/${id}/comments?isAll=${isExpand}`, {
         method: 'GET',
@@ -103,7 +112,26 @@ function getComments(elToogleExpand, isExpand) {
     })
 }
 
-function commonFetchProperties(elTarget) {
+function joinRoom() {
+    const roomCode = document.querySelector('#input_code').value;
+    const csrftoken = Cookies.get('csrftoken');
+
+    fetch('/room-join', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        mode: 'same-origin',
+        body:  JSON.stringify({
+            room_code: roomCode
+        })
+    })
+    .then(commonFetchResponse)
+    .then(response => {
+        window.location.href = '/' + response.data.id + '/materials'
+    })
+        
+}
+
+function cardFetchProperties(elTarget) {
     const elCardMaterial = elTarget.closest('.card-material')
     const roomId = document.querySelector('#page-data').dataset.roomId;
     const id = elCardMaterial.id.split('-')[1];
