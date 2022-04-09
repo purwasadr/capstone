@@ -1,0 +1,12 @@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <ul class="nav nav-pills nav-justified mt-5 mb-4">
+            <li class="nav-item">
+                <a class="nav-link {% if page == 'materials' %}active{% endif %} " aria-current="page" href="{% url 'materials' clas_id %}">Materials</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if page == 'tasks' %}active{% endif %}" href="{% url 'tasks' clas_id %}">Tasks</a>
+            </li>
+        </ul>
+    </div>
+</div>
