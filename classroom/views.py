@@ -132,14 +132,11 @@ class MaterialsView(View):
 
 def context_breadcrumb(request_path: str, room: Room):
     list_path = request_path.rsplit('/')
-    list_path.pop()
-    list_path.pop()
-    print(list_path)
     breadcrumbs = []
     for index, split_path in enumerate(list_path):
         if index == 0:
             breadcrumbs.append({ 'name': 'Home', 'url': reverse('index') })
-        elif index == 1:
+        elif index == 2:
             if split_path.isdigit():
                 breadcrumbs.append({ 'name': room.name, 'url': reverse('materials', args=(room.id,)) })
     return breadcrumbs
@@ -247,7 +244,7 @@ class TaskView(View):
         return render(request, self.template_name, {
             'room_id': room_id,
             'tasks': tasks,
-            'page': 'tasks'
+            'page': 'tasks',
         })
 
 class AddTaskView(View):
