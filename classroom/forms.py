@@ -1,7 +1,7 @@
 from django import forms
 
 
-class AddRoomForm(forms.Form):
+class AddClasForm(forms.Form):
     def widget_common():
         return forms.TextInput(
             attrs={'class': 'form-control'}
@@ -21,7 +21,7 @@ class AddRoomForm(forms.Form):
         widget=forms.TextInput(
             attrs={'class': 'form-control'}
         ))
-    room_place = forms.CharField(max_length=255, required=False, label='Room',
+    room = forms.CharField(max_length=255, required=False, label='Room',
         widget=widget_common())
 
 
