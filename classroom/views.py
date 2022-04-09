@@ -13,12 +13,12 @@ from django.contrib import messages
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 
-from .forms import AddMaterialForm, AddRoomForm, AddTaskForm
-from .models import Material, MaterialComment, MaterialFile, Room, Task, TaskFile, TaskSubmitFile, User
+from .forms import AddClasForm, AddMaterialForm, AddTaskForm
+from .models import Material, MaterialComment, MaterialFile, Clas, Task, TaskFile, TaskSubmitFile, User
 
 
 # Create your views here.
-def generate_room_code():
+def generate_clas_code():
     length = 7
     chars = string.ascii_letters
     random.seed = (os.urandom(1024))
@@ -82,55 +82,55 @@ def register(request):
 
 @login_required()
 def index(request):
-    # rooms = Room.objects.filter(Q(author__id=request.user.id) | Q(members__id=request.user.id)).all()
-    rooms = request.user.room_members.all().union(request.user.rooms.all())
-    # rooms = Room.objects.filter(Q(author__id=request.user.id)).all()
+    # clases = Clas.objects.filter(Q(author__id=request.user.id) | Q(members__id=request.user.id)).all()
+    clases = request.user.clas_members.all().union(request.user.clases.all())
+    # clases = Clas.objects.filter(Q(author__id=request.user.id)).all()
     return render(request, 'classroom/index.html', {
-        'rooms': rooms
+        'clases': clases
     })
 
 @method_decorator(login_required, name='dispatch')
-class AddRoom(View):
-    template_path = 'classroom/add-room.html'
+class AddClas(View):
+    template_path = 'classroom/add-clas.html'
 
     def get(self, request):
-        return render(request, self.template_path, {'form': AddRoomForm})
+        return render(request, self.template_path, {'form': AddClasForm})
     
     def post(self, request):
-        form = AddRoomForm(request.POST)
+        form = AddClasForm(request.POST)
 
         if form.is_valid():
             name = form.cleaned_data['name']
             description = form.cleaned_data['description']
             subject = form.cleaned_data['subject']
-            room = form.cleaned_data['room_place']
-            room_code = generate_room_code()
-            Room.objects.create(
+            room = form.cleaned_data['room']
+            clas_code = generate_clas_code()
+            Clas.objects.create(
                 name = name,
                 description = description,
                 subject = subject,
-                room_place = room,
-                room_code = room_code,
+                room = room,
+                clas_code = clas_code,
                 author = request.user
             )
             return HttpResponseRedirect(reverse('index'))
 @method_decorator(login_required, name='dispatch')
 class MaterialsView(View):
     template_path = 'classroom/materials.html'
-    def get(self, request, room_id):
-        room = get_object_or_404(Room, pk=room_id)
-        materials = Material.objects.filter(room=room_id).order_by('-created_at').all()
+    def get(self, request, clas_id):
+        clas = get_object_or_404(Clas, pk=clas_id)
+        materials = Material.objects.filter(clas=clas_id).order_by('-created_at').all()
         return render(request, self.template_path, {
-            'room': room,
+            'clas': clas,
             'materials': materials,
             'page': 'materials',
-            'breadcrumb': context_breadcrumb(request.path, room)
+            'breadcrumb': context_breadcrumb(request.path, clas)
         })
     
     def post(self, request):
         pass
 
-def context_breadcrumb(request_path: str, room: Room):
+def context_breadcrumb(request_path: str, clas: Clas):
     list_path = request_path.rsplit('/')
     breadcrumbs = []
     for index, split_path in enumerate(list_path):
@@ -138,7 +138,7 @@ def context_breadcrumb(request_path: str, room: Room):
             breadcrumbs.append({ 'name': 'Home', 'url': reverse('index') })
         elif index == 2:
             if split_path.isdigit():
-                breadcrumbs.append({ 'name': room.name, 'url': reverse('materials', args=(room.id,)) })
+                breadcrumbs.append({ 'name': clas.name, 'url': reverse('materials', args=(clas.id,)) })
     return breadcrumbs
 
 
@@ -146,13 +146,13 @@ def context_breadcrumb(request_path: str, room: Room):
 class AddMaterialView(View):
     template_name = 'classroom/add-material.html'
 
-    def get(self, request, room_id):
+    def get(self, request, clas_id):
         return render(request, self.template_name, {
-            'room_id': room_id,
+            'clas_id': clas_id,
             'form': AddMaterialForm()
         })
 
-    def post(self, request, room_id):
+    def post(self, request, clas_id):
         form = AddMaterialForm(request.POST)
         files = request.FILES.getlist('files')
         
@@ -160,11 +160,11 @@ class AddMaterialView(View):
             title = form.cleaned_data['title']
             description = form.cleaned_data['description']
     
-            material =  Material.objects.create(title=title, description=description, created_at=timezone.now(), room=Room.objects.get(pk=room_id))
+            material =  Material.objects.create(title=title, description=description, created_at=timezone.now(), clas=Clas.objects.get(pk=clas_id))
 
             for file in files:
                 MaterialFile.objects.create(filename=file.name, file=file, material=material)
-            return HttpResponseRedirect(reverse('materials', args=(room_id,)))
+            return HttpResponseRedirect(reverse('materials', args=(clas_id,)))
 
 
 def material_file(request, material_id):
@@ -176,7 +176,7 @@ def material_file(request, material_id):
 
     return FileResponse(file, as_attachment=True, filename=material.filename)
 
-def material_comment(request, room_id, material_id):
+def material_comment(request, clas_id, material_id):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'You must authenticated'}, status=401)
     
@@ -238,11 +238,11 @@ def material_comment(request, room_id, material_id):
 class TaskView(View):
     template_name = 'classroom/tasks.html'
 
-    def get(self, request, room_id):
-        tasks = Task.objects.filter(room=room_id).order_by('-created_at').all()
+    def get(self, request, clas_id):
+        tasks = Task.objects.filter(clas=clas_id).order_by('-created_at').all()
        
         return render(request, self.template_name, {
-            'room_id': room_id,
+            'clas_id': clas_id,
             'tasks': tasks,
             'page': 'tasks',
         })
@@ -250,14 +250,14 @@ class TaskView(View):
 class AddTaskView(View):
     template_name = 'classroom/add-task.html'
 
-    def get(self, request, room_id):
+    def get(self, request, clas_id):
         
         return render(request, self.template_name, {
-            'room_id': room_id,
+            'clas_id': clas_id,
             'form': AddTaskForm(),
         })
 
-    def post(self, request, room_id):
+    def post(self, request, clas_id):
         form = AddTaskForm(request.POST)
         
         files = request.FILES.getlist('files')
@@ -277,24 +277,24 @@ class AddTaskView(View):
                 title=title,
                 description=description,
                 due_datetime=datetime_field,
-                room=Room.objects.get(pk=room_id)
+                clas=Clas.objects.get(pk=clas_id)
             )
 
             for file in files:
                 TaskFile.objects.create(filename=file.name, file=file, task=task)
-            return HttpResponseRedirect(reverse('tasks', args=(room_id,)))
+            return HttpResponseRedirect(reverse('tasks', args=(clas_id,)))
 
 class TaskDetailView(View):
     template_name = 'classroom/task-detail.html'
 
-    def get(self, request, room_id, task_id):
+    def get(self, request, clas_id, task_id):
         task = get_object_or_404(Task, pk=task_id)
-        room = get_object_or_404(Room, pk=room_id)
+        clas = get_object_or_404(Clas, pk=clas_id)
         submitted_files = task.submitted_files.filter(uploader=request.user)
         is_submitted = task.users_submitted.filter(pk=request.user.id).exists()
 
         return render(request, self.template_name, {
-            'room': room,
+            'clas': clas,
             'task': task,
             'work_files': submitted_files,
             'is_submitted': is_submitted,
@@ -303,17 +303,17 @@ class TaskDetailView(View):
         })
 
 class AddTaskSubmitView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
         files = request.FILES.getlist('work-files')
 
         for file in files:
             TaskSubmitFile.objects.create(filename=file.name, file=file, task=task, uploader=request.user)
         
-        return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id,)))
+        return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id,)))
 
 @login_required
-def join_room(request):
+def join_clas(request):
     if not request.body:
         return JsonResponse({
                 'error': 'Body cannot empty',
@@ -322,51 +322,51 @@ def join_room(request):
         )
         
     data = json.loads(request.body)
-    room_code = data.get('room_code')
-    search_room_code = Room.objects.filter(room_code=room_code).first()
+    clas_code = data.get('clas_code')
+    search_clas_code = Clas.objects.filter(clas_code=clas_code).first()
 
-    if search_room_code == None:
+    if search_clas_code == None:
         return JsonResponse({
-                'error': 'Code not match any room code',
+                'error': 'Code not match any class code',
             },
             status=404
         )
-    if search_room_code.members.filter(pk=request.user.id):
+    if search_clas_code.members.filter(pk=request.user.id):
         return JsonResponse({
                 'error': 'You already join',
             },
             status=404
         )
 
-    if search_room_code.author.id == request.user.id:
+    if search_clas_code.author.id == request.user.id:
         return JsonResponse({
-                'error': 'You author this room',
+                'error': 'You author this class',
             },
             status=404
         )
 
-    search_room_code.members.add(request.user)
+    search_clas_code.members.add(request.user)
     
     return JsonResponse({
                 'success': 'Success',
                 'data': {
-                    'id': search_room_code.id
+                    'id': search_clas_code.id
                 }
             },
             status=201
         )
 
 class AddTaskFileView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         files = request.FILES.getlist('work-files')
         task = Task.objects.get(pk=task_id)
 
         for file in files:
             TaskSubmitFile.objects.create(filename=file.name, file=file, task=task, uploader=request.user)
-        return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id)))
+        return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id)))
 
 class ChangeTaskFileView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         files = request.FILES.getlist('work-files')
         task = Task.objects.get(pk=task_id)
 
@@ -374,53 +374,53 @@ class ChangeTaskFileView(View):
 
         for file in files:
             TaskSubmitFile.objects.create(filename=file.name, file=file, task=task, uploader=request.user)
-        return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id)))
+        return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id)))
 
 class DeleteTaskFileView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
 
         task.submitted_files.all().delete()
 
-        return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id)))
+        return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id)))
 
 class SubmitTaskView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
 
         task.users_submitted.add(request.user)
 
-        # return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id)))
-        return redirect('task-detail', room_id, task_id, permanent=True)
+        # return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id)))
+        return redirect('task-detail', clas_id, task_id, permanent=True)
 
 class UnSubmitTaskView(View):
-    def post(self, request, room_id, task_id):
+    def post(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
 
         task.users_submitted.remove(request.user)
 
-        # return HttpResponseRedirect(reverse('task-detail', args=(room_id, task_id)))
-        return redirect('task-detail', room_id, task_id, permanent=True)
+        # return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id)))
+        return redirect('task-detail', clas_id, task_id, permanent=True)
 
 class TaskSubmission(View):
     template_name = 'classroom/task-submission.html'
 
-    def get(self, request, room_id, task_id):
+    def get(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
-        room = Room.objects.get(pk=room_id)
+        clas = Clas.objects.get(pk=clas_id)
         user_submitted = task.users_submitted.all()
         return render(request, self.template_name, {
-            'room': room,
+            'clas': clas,
             'task': task,
             'page_name': 'submission',
             'users_submitted': user_submitted,
-            'users_assigned': User.objects.exclude(Q(submitted_tasks=task_id) | Q(rooms=task.room.id)).all()
+            'users_assigned': User.objects.exclude(Q(submitted_tasks=task_id) | Q(clases=task.clas.id)).all()
         })
         # Q(author__id=request.user.id) | Q(members__id=request.user.id)
 
 class TaskSubmissionDetail(View):
     template_name = 'classroom/task-submission-detail.html'
-    def get(self, request, room_id, task_id, user_id):
+    def get(self, request, clas_id, task_id, user_id):
         task = Task.objects.get(pk=task_id)
         submitted_files = task.submitted_files.filter(uploader=user_id)
         return render(request, self.template_name, {
