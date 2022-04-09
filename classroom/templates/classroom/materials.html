@@ -1,5 +1,20 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
+   
+    {% block breadcrumb %}
+
+    {% endblock breadcrumb %}
+
+    {% comment %} <nav class="" aria-label="breadcrumb">
+        <div class="">
+          <ol class="breadcrumb py-1">
+            {% for bread in breadcrumb %}
+                <li class="breadcrumb-item"><a class="text-secondary" href="{{ bread.url }}">{{ bread.name }}</a></li>
+            {% endfor %}
+          </ol>
+        </div>
+      </nav> {% endcomment %}
+           
     <div class="card" style="height: 200px">
         <div class="card-body d-flex justify-content-end flex-column">
             <div class="d-flex justify-space-between">
@@ -21,7 +36,6 @@
 
     {% for material in materials %}    
         <div id="material-{{ material.id }}" class="card-material card mb-3">
-           
             <div class="card-body">
                 <div class="card-title"><span class="fw-medium">{{ material.title }}</span> <span class="small">{{ material.created_at|timesince }} ago</span></div>
                 <div class="card-text mb-4" style="white-space: pre-line;">{{ material.description }}</div>
@@ -47,19 +61,18 @@
                 </div>
             </div>
             <div class="comments-parent card-footer bg-transparent pt-3" data-comment-expand="false">
-                <button class="comment-expand-toogle btn">Show all</button>
                 <div class="comments">
                     {% for comment in material.get_comments_lastest_3_items %}
-                        {% include 'classroom/comment.html' %}
+                    {% include 'classroom/comment.html' %}
                     {% empty %}
                     {% endfor %}
                 </div>
-
+                <button class="comment-expand-toogle btn p-0">Show all</button>
             </div>
             <div class="card-footer bg-transparent px-1">
                 <div class="d-flex">
                     <input class="comment-input form-comment" type="text" placeholder="Type comment here...">
-                    <input class="btn btn-sm btn-primary ms-3 comment-submit" type="submit" value="Send">
+                    <input class="btn btn-sm btn-primary ms-1 comment-submit" type="button" value="Send">
                 </div>
             </div>
         </div>
@@ -69,9 +82,6 @@
     <div class="modal fade" id="modal-info" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            {% comment %} <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">About</h5>
-            </div> {% endcomment %}
             <div class="modal-body">
             <h4>{{ room.name }}</h4>
             <div>{{ room.description }}</div>
@@ -84,5 +94,5 @@
         </div>
     </div>
 
-    <div id="page-data" data-room-id="{{ room_id }}"></div>
+    <div id="page-data" data-room-id="{{ room.id }}"></div>
 {% endblock %}
