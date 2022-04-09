@@ -18,6 +18,48 @@ document.addEventListener('DOMContentLoaded', function() {
             joinRoom()
         })
     }
+
+    const modalJoinRoom = document.querySelector('#modal-join-room')
+    if (modalJoinRoom) {
+        modalJoinRoom.addEventListener('hidden.bs.modal', function (event) {
+            const inputClassCode = document.querySelector('#input_code')
+            const invalidFeedback = document.querySelector('#invalid-input_code')
+    
+            inputClassCode.value = '';
+            inputClassCode.classList.remove('is-invalid');
+            invalidFeedback.innerText = 'Not find code class';
+        })
+    }
+
+    const inputDueDate = document.querySelector('#due_date');
+    const inputDueTime = document.querySelector('#due_time');
+
+    if (inputDueDate && inputDueTime) {
+        const inputDueDatetime = document.querySelector('#due_datetime');
+        inputDueDate.addEventListener('change', (e) => {
+            if (!inputDueDate.value) {
+                inputDueDatetime.value = 'No due time'
+            } else {
+                inputDueDatetime.value = inputDueDate.value + ' ' + inputDueTime.value;
+            }
+        })
+
+        inputDueTime.addEventListener('change', (e) => {
+            if (!inputDueDate.value) {
+                inputDueDatetime.value = 'No due time'
+            } else {
+                inputDueDatetime.value = inputDueDate.value + ' ' + inputDueTime.value;
+            }
+        })
+
+        const btnClearDueDateTime = document.querySelector('#btn-clear-due-datetime')
+        btnClearDueDateTime.addEventListener('click', (e) => {
+            inputDueDate.value = ''
+            inputDueTime.value = ''
+            inputDueDatetime.value = 'No due time'
+        })
+    }
+
 });
 // document.querySelector('#sss').children
 function submitComment(elTarget) {
@@ -36,20 +78,10 @@ function submitComment(elTarget) {
     .then(commonFetchResponse)
     .then(response => {
         console.log(response);
-        const comments = response.data;
-        const elCommentParent = elCardMaterial.querySelector('.comments-parent');
-
-        console.log(elCommentParent);
-
-        elCommentParent.querySelector('.comments').innerHTML = '';
-
-        console.log(comments);
-
-        console.log('akhirwww');
-
-        comments.forEach(comment => {
-            elCommentParent.append(makeComment(comment.author, comment.created_at,comment.text))
-        });
+        const isExpand = elCardMaterial.querySelector('.comments-parent').dataset.commentExpand;
+        
+        getComments(elTarget, isExpand);
+        elInput.value = '';
     })
 }
 
@@ -114,7 +146,10 @@ function getComments(elToogleExpand, isExpand) {
 
 function joinRoom() {
     const roomCode = document.querySelector('#input_code').value;
+    const inputSubmitJoinRoom = document.querySelector('#input-submit-join-room')
     const csrftoken = Cookies.get('csrftoken');
+
+    inputSubmitJoinRoom.setAttribute('disabled', '');
 
     fetch('/room-join', {
         method: 'POST',
@@ -124,10 +159,33 @@ function joinRoom() {
             room_code: roomCode
         })
     })
-    .then(commonFetchResponse)
     .then(response => {
-        window.location.href = '/' + response.data.id + '/materials'
+        if (response.status === 201) {
+            return response.json();
+        } else if (response.status === 401) {
+            window.location.href = '/login';
+            throw Error('Unathorized');
+        } else if (response.status === 404) {
+            response.json().then(response => {
+                const inputClassCode = document.querySelector('#input_code')
+                const invalidFeedback = document.querySelector('#invalid-input_code')
+
+                inputClassCode.classList.add('is-invalid')
+                invalidFeedback.innerText = response.error
+            })
+            throw Error('Not Found')
+        }
+
+        throw Error();
     })
+    .then(response => {
+        window.location.href = '/' + response.data.id + '/materials';
+    })
+    .catch(reason => {
+        console.log(reason);
+    }).finally(() =>{
+        inputSubmitJoinRoom.removeAttribute('disabled');
+    });
         
 }
 
