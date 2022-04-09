@@ -2,7 +2,7 @@
 {% block body %}
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'add-room' %}" class="btn btn-primary">Add Room</a>
-        <a href="" class="btn btn-primary ms-2">Join Room</a>
+        <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#modal-join-room">Join Room</button>
     </div>
 
     {% for room in rooms %}    
@@ -15,5 +15,27 @@
         </div>
     {% empty %}
     {% endfor %}
+
+    <div class="modal fade" id="modal-join-room" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="mb-3">Insert class code</h5>
+                <form class="mb-4" id="form-join-room" action="post">
+                    <div class="row gx-2">
+                        <div class="col">
+                            <input class="form-control d-inline-block" type="text" name="input_code" id="input_code" required>
+                            <div class="invalid-feedback" id="invalid-input_code"></div>
+                        </div>
+                        <div class="col-auto">
+                            <input class="btn btn-primary" id="input-submit-join-room" type="submit" value="Join">
+                        </div>
+                    </div>
+                </form>
+                <button type="button" class="btn text-primary ms-auto d-block" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </div>
+    </div>
 {% endblock %}
 
