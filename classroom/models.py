@@ -25,7 +25,7 @@ def task_submit_directory_path(instance, filename):
 class User(AbstractUser):
     pass
 
-class Room(models.Model):
+class Clas(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
     subject = models.CharField(max_length=255, blank=True)
@@ -41,7 +41,7 @@ class Material(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
     created_at = models.DateTimeField(blank=True)
-    room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='materials')
+    room = models.ForeignKey(Clas, default='', on_delete=models.CASCADE, related_name='materials')
 
     def __str__(self):
         return self.title
@@ -59,7 +59,7 @@ class Task(models.Model):
     description = models.CharField(max_length=3000, blank=True)
     due_datetime = models.DateTimeField(null=True)
     created_at = models.DateTimeField(default=now)
-    room = models.ForeignKey(Room, default='', on_delete=models.CASCADE, related_name='tasks')
+    room = models.ForeignKey(Clas, default='', on_delete=models.CASCADE, related_name='tasks')
     users_submitted = models.ManyToManyField(User, blank=True, through='TaskSubmit', related_name='submitted_tasks')
 
     def __str__(self):
