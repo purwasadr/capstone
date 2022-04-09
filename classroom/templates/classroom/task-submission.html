@@ -1,0 +1,44 @@
+{% extends 'classroom/layout.html' %}
+{% block body %}
+
+    {% include 'classroom/nav-task.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <h4>{{ users_assigned.count|default:0 }}</h4>
+            <div>Assigned</div>        
+        </div>
+        <div class="col-auto">
+            <h4>{{ users_submitted.count }}</h4>
+            <div>Turned in</div>
+        </div>
+    </div>
+
+    {% if users_submitted.exists%}    
+        <div class="fw-medium mb-2">Turn in</div>
+        {% for user in users_submitted %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div>{{ user.username }}</div>
+                </div>
+                <a class="stretched-link" href="{% url 'task-submission-detail' room.id task.id user.id %}"></a>
+            </div>
+        {% empty %}
+        {% endfor %}
+    {% endif %}
+
+    {% if users_assigned.exists%}     
+        <div class="fw-medium mb-2 mt-3">Assigned</div>
+
+        {% for user in users_assigned %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div>{{ user.username }}</div>
+                </div>
+                <a class="stretched-link" href="{% url 'task-submission-detail' room.id task.id user.id %}"></a>
+            </div>
+        {% empty %}
+        {% endfor %}
+{% endif %}
+
+{% endblock %}
