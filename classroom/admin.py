@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from classroom.models import Material, MaterialComment, MaterialFile, Room, Task, TaskFile, TaskSubmit, TaskSubmitFile, User
+from classroom.models import Clas, Material, MaterialComment, MaterialFile, Task, TaskFile, TaskSubmit, TaskSubmitFile, User
 
 # Register your models here.
 admin.site.register(User)
-admin.site.register(Room)
+admin.site.register(Clas)
 admin.site.register(Material)
 admin.site.register(MaterialFile)
 admin.site.register(MaterialComment)
