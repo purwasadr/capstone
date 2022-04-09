@@ -26,12 +26,12 @@
         </div>
     </div>
 
-    {% with room.id as room_id %}
-        {% include 'classroom/nav-room.html' %}
+    {% with clas.id as clas_id %}
+        {% include 'classroom/nav-clas.html' %}
     {% endwith %}
 
     <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add-material' room.id %}" class="btn btn-primary">Add Material</a>
+        <a href="{% url 'add-material' clas.id %}" class="btn btn-primary">Add Material</a>
     </div>
 
     {% for material in materials %}    
@@ -83,16 +83,16 @@
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body">
-            <h4>{{ room.name }}</h4>
-            <div>{{ room.description }}</div>
-            <div>Room : {{ room.room_place }}</div>
-            <div>Subject : {{ room.subject }}</div>
-            <div>Class code : {{ room.room_code }}</div>
+            <h4>{{ clas.name }}</h4>
+            <div>{{ clas.description }}</div>
+            <div>Room : {{ clas.room }}</div>
+            <div>Subject : {{ clas.subject }}</div>
+            <div>Class code : {{ clas.clas_code }}</div>
             <button type="button" class="btn btn-secondary ms-auto d-block" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
         </div>
     </div>
 
-    <div id="page-data" data-room-id="{{ room.id }}"></div>
+    <div id="page-data" data-clas-id="{{ clas.id }}"></div>
 {% endblock %}

@@ -2,7 +2,7 @@
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <form id="form-add-task" action="{% url 'add-task' room_id %}" method="post" enctype="multipart/form-data">
+            <form id="form-add-task" action="{% url 'add-task' clas_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-2">
                     <label for="title" class="form-label">Title</label>

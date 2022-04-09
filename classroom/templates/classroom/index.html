@@ -1,34 +1,34 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
     <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add-room' %}" class="btn btn-primary">Add Room</a>
-        <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#modal-join-room">Join Room</button>
+        <a href="{% url 'add-clas' %}" class="btn btn-primary">Add Class</a>
+        <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#modal-join-clas">Join Class</button>
     </div>
 
-    {% for room in rooms %}    
+    {% for clas in clases %}    
         <div class="card mb-3">
             <div class="card-body">
-                <div class="mb-5">{{ room.name }}</div>
-                <div class="small">{{ room.author.username }}</div>
-                <a class="stretched-link" href="{% url 'materials' room.id %}"></a>
+                <div class="mb-5">{{ clas.name }}</div>
+                <div class="small">{{ clas.author.username }}</div>
+                <a class="stretched-link" href="{% url 'materials' clas.id %}"></a>
             </div>
         </div>
     {% empty %}
     {% endfor %}
 
-    <div class="modal fade" id="modal-join-room" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-join-clas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body">
                 <h5 class="mb-3">Insert class code</h5>
-                <form class="mb-4" id="form-join-room" action="post">
+                <form class="mb-4" id="form-join-clas" action="post">
                     <div class="row gx-2">
                         <div class="col">
                             <input class="form-control d-inline-block" type="text" name="input_code" id="input_code" required>
                             <div class="invalid-feedback" id="invalid-input_code"></div>
                         </div>
                         <div class="col-auto">
-                            <input class="btn btn-primary" id="input-submit-join-room" type="submit" value="Join">
+                            <input class="btn btn-primary" id="input-submit-join-clas" type="submit" value="Join">
                         </div>
                     </div>
                 </form>
