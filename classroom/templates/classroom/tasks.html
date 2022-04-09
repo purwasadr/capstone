@@ -1,10 +1,10 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
 
-    {% include 'classroom/nav-room.html' %}
+    {% include 'classroom/nav-clas.html' %}
     
     <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add-task' room_id %}" class="btn btn-primary">Add Task</a>
+        <a href="{% url 'add-task' clas_id %}" class="btn btn-primary">Add Task</a>
     </div>
 
     {% for task in tasks %}    
@@ -12,7 +12,7 @@
             <div class="card-body">
                 <span class="cart-title fw-medium ">{{ task.title }}</span> <span class="small">{{ task.created_at }}</span>
                 <div class="cart-text">{{ task.description }}</div>
-                <a class="stretched-link" href="{% url 'task-detail' room_id task.id %}"></a>
+                <a class="stretched-link" href="{% url 'task-detail' clas_id task.id %}"></a>
             </div>
         </div>
     {% empty %}

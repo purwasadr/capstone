@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <div>{{ user.username }}</div>
                 </div>
-                <a class="stretched-link" href="{% url 'task-submission-detail' room.id task.id user.id %}"></a>
+                <a class="stretched-link" href="{% url 'task-submission-detail' clas.id task.id user.id %}"></a>
             </div>
         {% empty %}
         {% endfor %}
@@ -35,7 +35,7 @@
                 <div class="card-body">
                     <div>{{ user.username }}</div>
                 </div>
-                <a class="stretched-link" href="{% url 'task-submission-detail' room.id task.id user.id %}"></a>
+                <a class="stretched-link" href="{% url 'task-submission-detail' clas.id task.id user.id %}"></a>
             </div>
         {% empty %}
         {% endfor %}
