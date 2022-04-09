@@ -10,18 +10,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const formJoinRoom = document.querySelector('#form-join-room')
+    const formJoinClas = document.querySelector('#form-join-clas')
     
-    if (formJoinRoom) {
-        formJoinRoom.addEventListener('submit', e => {
+    if (formJoinClas) {
+        formJoinClas.addEventListener('submit', e => {
             e.preventDefault()
-            joinRoom()
+            joinClas()
         })
     }
 
-    const modalJoinRoom = document.querySelector('#modal-join-room')
-    if (modalJoinRoom) {
-        modalJoinRoom.addEventListener('hidden.bs.modal', function (event) {
+    const modalJoinClas = document.querySelector('#modal-join-clas')
+    if (modalJoinClas) {
+        modalJoinClas.addEventListener('hidden.bs.modal', function (event) {
             const inputClassCode = document.querySelector('#input_code')
             const invalidFeedback = document.querySelector('#invalid-input_code')
     
@@ -63,11 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // document.querySelector('#sss').children
 function submitComment(elTarget) {
-    const { elCardMaterial, roomId, id, csrftoken } = cardFetchProperties(elTarget);
+    const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elTarget);
 
     const elInput = elTarget.parentElement.querySelector('.comment-input')
 
-    fetch(`/${roomId}/materials/${id}/comments`, {
+    fetch(`/${clasId}/materials/${id}/comments`, {
         method: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin',
@@ -122,9 +122,9 @@ function toogleExpandComment(elToogleExpand) {
 }
 
 function getComments(elToogleExpand, isExpand) {
-    const { elCardMaterial, roomId, id, csrftoken } = cardFetchProperties(elToogleExpand);
+    const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elToogleExpand);
 
-    fetch(`/${roomId}/materials/${id}/comments?isAll=${isExpand}`, {
+    fetch(`/${clasId}/materials/${id}/comments?isAll=${isExpand}`, {
         method: 'GET',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin',
@@ -144,19 +144,19 @@ function getComments(elToogleExpand, isExpand) {
     })
 }
 
-function joinRoom() {
-    const roomCode = document.querySelector('#input_code').value;
-    const inputSubmitJoinRoom = document.querySelector('#input-submit-join-room')
+function joinClas() {
+    const clasCode = document.querySelector('#input_code').value;
+    const inputSubmitJoinClas = document.querySelector('#input-submit-join-clas')
     const csrftoken = Cookies.get('csrftoken');
 
-    inputSubmitJoinRoom.setAttribute('disabled', '');
+    inputSubmitJoinClas.setAttribute('disabled', '');
 
-    fetch('/room-join', {
+    fetch('/join', {
         method: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin',
         body:  JSON.stringify({
-            room_code: roomCode
+            clas_code: clasCode
         })
     })
     .then(response => {
@@ -184,18 +184,18 @@ function joinRoom() {
     .catch(reason => {
         console.log(reason);
     }).finally(() =>{
-        inputSubmitJoinRoom.removeAttribute('disabled');
+        inputSubmitJoinClas.removeAttribute('disabled');
     });
         
 }
 
 function cardFetchProperties(elTarget) {
     const elCardMaterial = elTarget.closest('.card-material')
-    const roomId = document.querySelector('#page-data').dataset.roomId;
+    const clasId = document.querySelector('#page-data').dataset.clasId;
     const id = elCardMaterial.id.split('-')[1];
     const csrftoken = Cookies.get('csrftoken');
 
-    return { elCardMaterial, roomId, id, csrftoken };
+    return { elCardMaterial, clasId, id, csrftoken };
 }
 
 function commonFetchResponse(response) {
