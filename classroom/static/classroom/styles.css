@@ -38,3 +38,8 @@
 .form-comment:focus-visible {
     outline: none;
 }
+
+.form-date.form-control[readonly] {
+    background-color: #fff;
+    opacity: unset;
+}
