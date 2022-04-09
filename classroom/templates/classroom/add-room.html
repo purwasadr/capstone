@@ -14,7 +14,8 @@
             </div>
         {% endfor %}
         <div class="d-flex justify-content-end">
-            <input class="btn btn-primary" type="submit" value="Create">
+            <a class="btn btn-primary" href="{% url 'index' %}">Cancel</a>
+            <input class="ms-3 btn btn-primary" type="submit" value="Create">
         </div>
     </form>
 {% endblock %}
