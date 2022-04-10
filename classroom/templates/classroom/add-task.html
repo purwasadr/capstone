@@ -1,7 +1,7 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
     <div class="row justify-content-center">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <form id="form-add-task" action="{% url 'add-task' clas_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-2">
@@ -23,8 +23,9 @@
                     <label class="form-label" for="files">Files</label>
                     <input type="file" name="files" class="form-control" multiple id="files">
                 </div>
-                <div class="d-flex justify-content-end">
-                    <input class="btn btn-primary" type="submit" value="Create">
+                <div class="d-flex justify-content-end mt-3">
+                    <a class="btn btn-primary" href="{% url 'tasks' clas_id %}">Cancel</a>
+                    <input class="btn btn-primary ms-2" type="submit" value="Create">
                 </div>
             </form>
         </div>
@@ -34,12 +35,13 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-body">
-                <h5 class="modal-title mb-3">Due</h5>
                 <div class="row">
                     <div class="col mb-2">
+                        <label for="due_date" class="form-label">Date</label>
                         <input class="form-control" type="date" name="due_date" id="due_date" form="form-add-task">
                     </div>
                     <div class="col mb-2">
+                        <label for="due_time" class="form-label">Time</label>
                         <input class="form-control" type="time" name="due_time" id="due_time" form="form-add-task">
                     </div>
                 </div>
