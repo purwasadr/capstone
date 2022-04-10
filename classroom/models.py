@@ -47,9 +47,11 @@ class Material(models.Model):
         return self.title
 
     def get_comments_lastest_items(self, limit: int):
-        comments_count = self.comments.count()
-        comments_offset = comments_count - limit
-        return self.comments.all()[comments_offset:comments_count]
+        if self.comments.count() > limit:
+            comments_count = self.comments.count()
+            comments_offset = comments_count - limit
+            return self.comments.all()[comments_offset:comments_count]
+        return self.comments.all()
 
     def get_comments_lastest_3_items(self):
         return self.get_comments_lastest_items(3)
@@ -61,6 +63,7 @@ class Task(models.Model):
     created_at = models.DateTimeField(default=now)
     clas = models.ForeignKey(Clas, default='', on_delete=models.CASCADE, related_name='tasks')
     users_submitted = models.ManyToManyField(User, blank=True, through='TaskSubmit', related_name='submitted_tasks')
+    user_task_returned = models.ManyToManyField(User, blank=True, related_name='returned_task')
 
     def __str__(self):
         return self.title
