@@ -27,6 +27,7 @@ class User(AbstractUser):
 class Clas(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
+    section = models.CharField(max_length=255, blank=True)
     subject = models.CharField(max_length=255, blank=True)
     room = models.CharField(max_length=255, blank=True)
     clas_code = models.CharField(max_length=12)
