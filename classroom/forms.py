@@ -13,9 +13,13 @@ class AddClasForm(forms.Form):
         widget=forms.TextInput(
             attrs={'class': 'form-control'}
         ))
-    description = forms.CharField(max_length=3000,  label='Description',
+    description = forms.CharField(max_length=3000, required=False, label='Description',
         widget=forms.Textarea(
             attrs={'class': 'form-control', 'rows': '4'}
+        ))
+    section = forms.CharField(max_length=255, required=False, label='Section',
+        widget=forms.TextInput(
+            attrs={'class': 'form-control'}
         ))
     subject = forms.CharField(max_length=255, required=False, label='Subject',
         widget=forms.TextInput(
