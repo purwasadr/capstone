@@ -1,34 +1,7 @@
 {% extends 'classroom/layout.html' %}
 {% block body %}
-   
-    {% block breadcrumb %}
-
-    {% endblock breadcrumb %}
-
-    {% comment %} <nav class="" aria-label="breadcrumb">
-        <div class="">
-          <ol class="breadcrumb py-1">
-            {% for bread in breadcrumb %}
-                <li class="breadcrumb-item"><a class="text-secondary" href="{{ bread.url }}">{{ bread.name }}</a></li>
-            {% endfor %}
-          </ol>
-        </div>
-      </nav> {% endcomment %}
-           
-    <div class="card" style="height: 200px">
-        <div class="card-body d-flex justify-content-end flex-column">
-            <div class="d-flex justify-space-between">
-                <div class="cart-title h5 me-auto d-inline-block">
-                    Matematika
-                </div>
-                <button class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#modal-info">Info</button>
-            </div>
-        </div>
-    </div>
-
-    {% with clas.id as clas_id %}
-        {% include 'classroom/nav-clas.html' %}
-    {% endwith %}
+    {% include 'classroom/header-info.html' %}
+    {% include 'classroom/nav-clas.html' %}
 
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'add-material' clas.id %}" class="btn btn-primary">Add Material</a>
@@ -37,7 +10,7 @@
     {% for material in materials %}    
         <div id="material-{{ material.id }}" class="card-material card mb-3">
             <div class="card-body">
-                <div class="card-title"><span class="fw-medium">{{ material.title }}</span> <span class="small">{{ material.created_at|timesince }} ago</span></div>
+                <div class="card-title"><span class="fw-medium">{{ material.title }}</span> <span class="small text-secondary">{{ material.created_at|timesince }} ago</span></div>
                 <div class="card-text mb-4" style="white-space: pre-line;">{{ material.description }}</div>
                 <div class="row gx-2">
                     {% for material_file in material.files.all %}
@@ -60,14 +33,16 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="comments-parent card-footer bg-transparent pt-3" data-comment-expand="false">
+            <div class="comments-parent {% if material.comments.count > 0 %}card-footer pt-3{% endif %} bg-transparent" data-comment-expand="false">
                 <div class="comments">
                     {% for comment in material.get_comments_lastest_3_items %}
-                    {% include 'classroom/comment.html' %}
+                        {% include 'classroom/comment.html' %}
                     {% empty %}
                     {% endfor %}
                 </div>
-                <button class="comment-expand-toogle btn p-0">Show all</button>
+                {% if material.comments.count > 3 %}
+                    <button class="comment-expand-toogle btn p-0">Show all</button>
+                {% endif %}
             </div>
             <div class="card-footer bg-transparent px-1">
                 <div class="d-flex">
@@ -78,21 +53,6 @@
         </div>
     {% empty %}
     {% endfor %}
-
-    <div class="modal fade" id="modal-info" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body">
-            <h4>{{ clas.name }}</h4>
-            <div>{{ clas.description }}</div>
-            <div>Room : {{ clas.room }}</div>
-            <div>Subject : {{ clas.subject }}</div>
-            <div>Class code : {{ clas.clas_code }}</div>
-            <button type="button" class="btn btn-secondary ms-auto d-block" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-        </div>
-    </div>
 
     <div id="page-data" data-clas-id="{{ clas.id }}"></div>
 {% endblock %}
