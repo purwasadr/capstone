@@ -3,8 +3,8 @@
 
 <div class="row">
     <div class="col-lg-8">
-        <h3 class="mb-0">{{ task.clas.author.username }}</h3>
-        <div class="mb-3">Turned in</div>
+        <h3 class="mb-0">{{ user_submission.username }}</h3>
+        <div class="mb-3">{% if is_user_submit %}Turned in{% else %}Assigned{% endif %}</div>
 
         <div class="row">
             {% for file in submitted_files %}
@@ -32,10 +32,12 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="mb-3">Return Task</h4>
-                <button class="btn btn-sm btn-primary w-100">Return</button>
+                <form action="{% url 'task-submission-return' clas_id task_id user_id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-primary w-100" {% if task_user_is_returned or not is_user_submit %}disabled{% endif %}>Return</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
