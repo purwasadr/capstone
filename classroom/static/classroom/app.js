@@ -3,12 +3,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', (e) => {
         const elTarget = e.target;
 
-        if (elTarget.classList.contains('comment-submit')) {
-            submitComment(elTarget);
-        } else if (elTarget.classList.contains('comment-expand-toogle')) {
+        console.log(e.target);
+        if (elTarget.classList.contains('comment-expand-toogle')) {
             toogleExpandComment(elTarget);
         }
     });
+
+    const elCommentSubmit = document.querySelectorAll('.comment-submit')
+
+    if (elCommentSubmit.length > 0) {
+        elCommentSubmit.forEach(e => {
+            e.addEventListener('click', e => {
+                submitComment(e.target);
+            })
+        })
+    }
 
     const formJoinClas = document.querySelector('#form-join-clas')
     
@@ -61,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
-// document.querySelector('#sss').children
+// document.querySelector('#sss').setAttribute
 function submitComment(elTarget) {
     const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elTarget);
 
-    const elInput = elTarget.parentElement.querySelector('.comment-input')
+    const elInput = elCardMaterial.querySelector('.comment-input');
 
     fetch(`/${clasId}/materials/${id}/comments`, {
         method: 'POST',
@@ -112,7 +121,7 @@ function toogleExpandComment(elToogleExpand) {
         elCommentParent.dataset.commentExpand = 'false';
         getComments(elToogleExpand, false);
     } else {
-        elToogleExpand.innerText = 'Show less'
+        elToogleExpand.innerText = 'Show less';
         elCommentParent.dataset.commentExpand = 'true';
         getComments(elToogleExpand, true);
     }
@@ -121,8 +130,8 @@ function toogleExpandComment(elToogleExpand) {
     console.log(typeof isExpand);
 }
 
-function getComments(elToogleExpand, isExpand) {
-    const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elToogleExpand);
+function getComments(elTarget, isExpand) {
+    const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elTarget);
 
     fetch(`/${clasId}/materials/${id}/comments?isAll=${isExpand}`, {
         method: 'GET',
@@ -134,19 +143,35 @@ function getComments(elToogleExpand, isExpand) {
         console.log(response);
         const comments = response.data;
         const elCommentParent = elCardMaterial.querySelector('.comments-parent');
-        const elComments =  elCommentParent.querySelector('.comments')
+        const elComments =  elCommentParent.querySelector('.comments');
+
+        const count = response.count;
+        const elToogleExpand = elCardMaterial.querySelector('.comment-expand-toogle');
+        console.log(count)
+
+        if (count > 0) {
+            elCommentParent.classList.add('card-footer', 'pt-3');
+        } else {
+            elCommentParent.classList.remove('card-footer', 'pt-3');
+        }
+
+        if (count > 3) {
+            elToogleExpand.removeAttribute('hidden');
+        } else {
+            elToogleExpand.setAttribute('hidden', '');
+        }
         
         elComments.innerHTML = '';
 
         comments.forEach(comment => {
-            elComments.append(makeComment(comment.author, comment.created_at,comment.text))
+            elComments.append(makeComment(comment.author, comment.created_at,comment.text));
         });
     })
 }
 
 function joinClas() {
     const clasCode = document.querySelector('#input_code').value;
-    const inputSubmitJoinClas = document.querySelector('#input-submit-join-clas')
+    const inputSubmitJoinClas = document.querySelector('#input-submit-join-clas');
     const csrftoken = Cookies.get('csrftoken');
 
     inputSubmitJoinClas.setAttribute('disabled', '');
