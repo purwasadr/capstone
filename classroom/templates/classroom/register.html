@@ -1,27 +1,32 @@
-{% extends 'classroom/layout.html' %}
+{% extends 'classroom/layout-auth.html' %}
 
 {% block body %}
-<form action="" method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="username">Username</label>
-        <input class="form-control" autofocus type="text" name="username">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <h4 class="text-center">Register</h4>
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-control" autofocus type="text" name="username">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" type="email" name="email">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" type="password" name="password">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="confirmation">Confirm Password</label>
+                    <input class="form-control" type="password" name="confirmation">
+                </div>
+                <input class="btn btn-primary mb-3" type="submit" value="Register">
+        
+                <span>Already have an account? <a href="{% url 'login' %}">Login.</a></span>
+            </form>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="email">Email</label>
-        <input class="form-control" type="email" name="email">
-    </div>
-    <div class="mb-3">
-        <label for="password">Password</label>
-        <input class="form-control" type="password" name="password">
-    </div>
-    <div class="mb-3">
-        <label for="confirmation">Confirm Password</label>
-        <input class="form-control" type="password" name="confirmation">
-    </div>
-    <input class="btn btn-primary mb-3" type="submit" value="Register">
-
-    <span>Already have an account? <a href="{% url 'login' %}">Login.</a></span>
-</form>
 {% endblock %}
 
