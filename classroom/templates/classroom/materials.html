@@ -1,4 +1,4 @@
-{% extends 'classroom/layout.html' %}
+{% extends 'classroom/layout-main.html' %}
 {% block body %}
     {% include 'classroom/header-info.html' %}
     {% include 'classroom/nav-clas.html' %}
@@ -40,14 +40,17 @@
                     {% empty %}
                     {% endfor %}
                 </div>
-                {% if material.comments.count > 3 %}
-                    <button class="comment-expand-toogle btn p-0">Show all</button>
-                {% endif %}
+                <button class="comment-expand-toogle btn p-0" {% if not material.comments.count > 3 %}hidden{% endif %}>Show all</button>
             </div>
             <div class="card-footer bg-transparent px-1">
                 <div class="d-flex">
                     <input class="comment-input form-comment" type="text" placeholder="Type comment here...">
-                    <input class="btn btn-sm btn-primary ms-1 comment-submit" type="button" value="Send">
+
+                    <div style="cursor: pointer;" class="ms-1 comment-submit me-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36px" height="36px" class="py-1" fill="#212529" viewBox="0 0 16 16">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                        </svg> 
+                    </div>       
                 </div>
             </div>
         </div>
