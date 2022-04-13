@@ -22,7 +22,9 @@ def task_submit_directory_path(instance, filename):
         return 'task_submit_file/{0}{1}'.format(generate_file_code(), ''.join(pathlib.Path(filename).suffixes))
 
 class User(AbstractUser):
-    pass
+    
+    def clases_owned_and_joined(self):
+        return self.clas_members.all().union(self.clases.all())
 
 class Clas(models.Model):
     name = models.CharField(max_length=255)
