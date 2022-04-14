@@ -1,29 +1,34 @@
 {% extends 'classroom/layout-main.html' %}
+{% load humanize %}
+
+{% block title %}{{ clas.name }}{% endblock title %}
 {% block body %}
     {% include 'classroom/header-info.html' %}
     {% include 'classroom/nav-clas.html' %}
 
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add-material' clas.id %}" class="btn btn-primary">Add Material</a>
-    </div>
+    {% if materials.first.clas.author == request.user %}    
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{% url 'add-material' clas.id %}" class="btn btn-primary">Add Material</a>
+        </div>
+    {% endif %}
 
     {% for material in materials %}    
         <div id="material-{{ material.id }}" class="card-material card mb-3">
             <div class="card-body">
-                <div class="card-title"><span class="fw-medium">{{ material.title }}</span> <span class="small text-secondary">{{ material.created_at|timesince }} ago</span></div>
+                <div class="card-title"><span class="fw-medium">{{ material.title }}</span> <span class="small text-secondary">{{ material.created_at|naturaltime }}</span></div>
                 <div class="card-text mb-4" style="white-space: pre-line;">{{ material.description }}</div>
                 <div class="row gx-2">
                     {% for material_file in material.files.all %}
                         <div class="col-md-4">
                             <div class="card flex-row mb-2">
-                                <div class="card-header bg-transparent rounded-0 border-bottom-0 border-end">
-                                    <div class="d-inline-block" style="width: 40px;">
+                                <div class="card-header bg-transparent rounded-0 border-bottom-0 border-end px-3">
+                                    <div style="width: 34px; padding-top: 2px; padding-bottom: 2px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"  fill="currentColor" viewBox="0 0 16 16">
                                             <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                                         </svg>
                                     </div>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column justify-content-center">
                                     <div class="line-clamp-1 small">{{ material_file.filename }}</div>
                                 </div>
                                 <a href="{% url 'material-file' material_file.id %}" class="stretched-link"></a>
