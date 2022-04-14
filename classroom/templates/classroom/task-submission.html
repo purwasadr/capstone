@@ -3,16 +3,33 @@
 
     {% include 'classroom/nav-task.html' %}
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mb-3">
         <div class="col-auto">
-            <h4>{{ users_assigned.count|default:0 }}</h4>
+            <h4 class="text-center">{{ users_assigned.count|default:0 }}</h4>
             <div>Assigned</div>        
         </div>
         <div class="col-auto">
-            <h4>{{ users_submitted.count }}</h4>
+            <h4 class="text-center">{{ users_submitted.count }}</h4>
             <div>Turned in</div>
         </div>
+        <div class="col-auto">
+            <h4 class="text-center">{{ task.user_task_returned.count }}</h4>
+            <div>Returned</div>
+        </div>
     </div>
+
+    {% if task.user_task_returned.exists %}
+        <div class="fw-medium mb-2">Returned</div>
+        {% for user in task.user_task_returned.all %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div>{{ user.username }}</div>
+                </div>
+                <a class="stretched-link" href="{% url 'task-submission-detail' clas.id task.id user.id %}"></a>
+            </div>
+        {% empty %}
+        {% endfor %}
+    {% endif %}
 
     {% if users_submitted.exists%}    
         <div class="fw-medium mb-2">Turn in</div>
@@ -39,6 +56,6 @@
             </div>
         {% empty %}
         {% endfor %}
-{% endif %}
+    {% endif %}
 
 {% endblock %}
