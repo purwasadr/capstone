@@ -12,12 +12,12 @@ from django.views import View
 from django.contrib import messages
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
-from .forms import AddClasForm, AddMaterialForm, AddTaskForm
+from .forms import ClasForm, MaterialForm, TaskForm
 from .models import Material, MaterialComment, MaterialFile, Clas, Task, TaskFile, TaskSubmitFile, User
 
 
-# Create your views here.
 def generate_clas_code():
     length = 7
     chars = string.ascii_letters
@@ -36,17 +36,25 @@ class GeneralView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+class ClasRouteView(GeneralView):
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.clas = get_object_or_404(Clas, pk=kwargs.get('clas_id'))
+        
+        if not self.clas.members.filter(pk=request.user.id).exists() and self.clas.author != request.user:
+            return HttpResponseForbidden()
+        
+        return super().dispatch(request, *args, **kwargs)
+
 class LoginView(AuthView):
     def get(self, request):
-        return render(request, "classroom/login.html")
+        return render(request, 'classroom/login.html')
 
     def post(self, request):
-         # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST['username']
+        password = request.POST['password']
         user = authenticate(request, username=username, password=password)
 
-        # Check if authentication successful
         if user is not None:
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
@@ -58,7 +66,7 @@ class LogoutView(GeneralView):
 
     def get(self, request):
         logout(request)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse('index'))
 
 class RegisterView(AuthView):
     def get(self, request):
@@ -68,16 +76,14 @@ class RegisterView(AuthView):
         username = request.POST['username']
         email = request.POST['email']
 
-        # Ensure password matches confirmation
         password = request.POST['password']
         confirmation = request.POST['confirmation']
 
         if password != confirmation:
             return render(request, 'classroom/register.html', {
-                "message": "Passwords must match."
+                'message': 'Passwords must match.'
             })
 
-        # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
@@ -105,34 +111,32 @@ class AddClas(GeneralView):
     template_path = 'classroom/add-clas.html'
 
     def get(self, request):
-        return render(request, self.template_path, { 'form': AddClasForm })
+        return render(request, self.template_path, { 'form': ClasForm })
     
     def post(self, request):
-        form = AddClasForm(request.POST)
+        form = ClasForm(request.POST)
 
         if form.is_valid():
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            section = form.cleaned_data['section']
-            subject = form.cleaned_data['subject']
-            room = form.cleaned_data['room']
             clas_code = generate_clas_code()
             Clas.objects.create(
-                name = name,
-                description = description,
-                section = section,
-                subject = subject,
-                room = room,
+                name = form.cleaned_data['name'],
+                description = form.cleaned_data['description'],
+                section = form.cleaned_data['section'],
+                subject = form.cleaned_data['subject'],
+                room = form.cleaned_data['room'],
                 clas_code = clas_code,
                 author = request.user
             )
             return HttpResponseRedirect(reverse('index'))
 
-class EditClasView(GeneralView):
+class EditClasView(ClasRouteView):
     def post(self, request, clas_id):
-        clas = get_object_or_404(Clas, pk=clas_id)
+        clas = self.clas
 
-        form = AddClasForm(request.POST)
+        if request.user != clas.author:
+            return HttpResponseForbidden()
+
+        form = ClasForm(request.POST)
         if form.is_valid():
             clas.name = form.cleaned_data['name']
             clas.description = form.cleaned_data['description']
@@ -152,19 +156,50 @@ class DeleteClasView(GeneralView):
 
         clas.delete()
         return redirect('index')
+    
 
-class MaterialsView(GeneralView):
+@login_required
+def join_clas(request):
+    if not request.body:
+        return JsonResponse({
+                'error': 'Body cannot empty',
+            },
+            status=403
+        )
+        
+    data = json.loads(request.body)
+    clas_code = data.get('clas_code')
+    searched_clas = Clas.objects.filter(clas_code=clas_code).first()
+
+    if searched_clas == None:
+        return JsonResponse({ 'error': 'Code not match any class code' }, status=404)
+    if searched_clas.members.filter(pk=request.user.id):
+        return JsonResponse({ 'error': 'You already join' }, status=404)
+
+    if searched_clas.author.id == request.user.id:
+        return JsonResponse({ 'error': 'You author this class' }, status=404)
+
+    searched_clas.members.add(request.user)
+    return JsonResponse({
+                'success': 'Success',
+                'data': {
+                    'id': searched_clas.id
+                }
+            },
+            status=201
+        )
+
+class MaterialsView(ClasRouteView):
     template_path = 'classroom/materials.html'
     def get(self, request, clas_id):
-        clas = get_object_or_404(Clas, pk=clas_id)
-        form = AddClasForm(initial={ 
-            'name': clas.name, 
-            'description': clas.description,
-            'section': clas.section,
-            'subject': clas.subject, 
-            'room': clas.room
-            }
-        )
+        clas = self.clas
+        form = ClasForm(initial={ 
+                'name': clas.name, 
+                'description': clas.description,
+                'section': clas.section,
+                'subject': clas.subject, 
+                'room': clas.room
+        })
 
         materials = Material.objects.filter(clas=clas_id).order_by('-created_at').all()
         return render(request, self.template_path, {
@@ -174,9 +209,6 @@ class MaterialsView(GeneralView):
             'form': form,
             'breadcrumb': context_breadcrumb(request.path, clas)
         })
-    
-    def post(self, request):
-        pass
 
 def context_breadcrumb(request_path: str, clas: Clas):
     list_path = request_path.rsplit('/')
@@ -190,46 +222,56 @@ def context_breadcrumb(request_path: str, clas: Clas):
     return breadcrumbs
 
 
-class AddMaterialView(GeneralView):
+class AddMaterialView(ClasRouteView):
     template_name = 'classroom/add-material.html'
 
     def get(self, request, clas_id):
+        clas = self.clas
         return render(request, self.template_name, {
-            'clas_id': clas_id,
-            'form': AddMaterialForm()
+            'clas': clas,
+            'form': MaterialForm()
         })
 
     def post(self, request, clas_id):
-        form = AddMaterialForm(request.POST)
+        form = MaterialForm(request.POST)
         files = request.FILES.getlist('files')
         
         if form.is_valid():
             title = form.cleaned_data['title']
             description = form.cleaned_data['description']
     
-            material =  Material.objects.create(title=title, description=description, created_at=timezone.now(), clas=Clas.objects.get(pk=clas_id))
+            material =  Material.objects.create(
+                title=title,
+                description=description,
+                created_at=timezone.now(),
+                clas=Clas.objects.get(pk=clas_id)
+            )
 
             for file in files:
                 MaterialFile.objects.create(filename=file.name, file=file, material=material)
             return HttpResponseRedirect(reverse('materials', args=(clas_id,)))
 
-def material_file(request, material_id):
-    if not request.user.is_authenticated:
-        return
+class MaterialFileView(GeneralView):
+    def get(self, request, material_id):
+        material = MaterialFile.objects.get(pk=material_id)
+        file = material.file
 
-    material = MaterialFile.objects.get(pk=material_id)
-    file = material.file
+        return FileResponse(file, as_attachment=True, filename=material.filename)
 
-    return FileResponse(file, as_attachment=True, filename=material.filename)
+class TaskFileView(GeneralView):
+    def get(self, request, task_id):
+        task = TaskFile.objects.get(pk=task_id)
+        file = task.file
 
-def task_file(request, task_id):
-    if not request.user.is_authenticated:
-        return
+        return FileResponse(file, as_attachment=True, filename=task.filename)
 
-    task = TaskFile.objects.get(pk=task_id)
-    file = task.file
+class TaskSubmissionFileView(GeneralView):
+    def get(self, request, task_id):
+        task_submission_file = get_object_or_404(TaskSubmitFile, pk=task_id)
+        file = task_submission_file.file
 
-    return FileResponse(file, as_attachment=True, filename=task.filename)
+        return FileResponse(file, as_attachment=True, filename=task_submission_file.filename)
+
 
 def material_comment(request, clas_id, material_id):
     if not request.user.is_authenticated:
@@ -249,21 +291,8 @@ def material_comment(request, clas_id, material_id):
                 material=material,
                 author=request.user
             )
-        
-        comments = []
-
-        for comment in material.comments.all():
-            comments.append({
-                'id': comment.id,
-                'text': comment.text,
-                'created_at': comment.created_at,
-                'author': comment.author.username,
-            })
-
         return JsonResponse({
                 'success': 'Success add comment',
-                'data': comments,
-                'count': material.comments.count()
             },
             status=201
         )
@@ -279,7 +308,7 @@ def material_comment(request, clas_id, material_id):
         comments_json.append({
             'id': comment.id,
             'text': comment.text,
-            'created_at': comment.created_at,
+            'created_at': naturaltime(comment.created_at),
             'author': comment.author.username,
         })
 
@@ -291,30 +320,39 @@ def material_comment(request, clas_id, material_id):
             status=201
         )
 
-class TaskView(GeneralView):
+class TaskView(ClasRouteView):
     template_name = 'classroom/tasks.html'
 
     def get(self, request, clas_id):
+        clas = self.clas
+        form = ClasForm(initial={ 
+                'name': clas.name, 
+                'description': clas.description,
+                'section': clas.section,
+                'subject': clas.subject, 
+                'room': clas.room
+        })
+
         tasks = Task.objects.filter(clas=clas_id).order_by('-created_at').all()
-        clas = get_object_or_404(Clas, pk=clas_id)
        
         return render(request, self.template_name, {
             'clas': clas,
+            'form': form,
             'tasks': tasks,
             'page': 'tasks',
         })
 
-class AddTaskView(GeneralView):
+class AddTaskView(ClasRouteView):
     template_name = 'classroom/add-task.html'
 
     def get(self, request, clas_id):
         return render(request, self.template_name, {
-            'clas_id': clas_id,
-            'form': AddTaskForm(),
+            'clas': self.clas,
+            'form': TaskForm(),
         })
 
     def post(self, request, clas_id):
-        form = AddTaskForm(request.POST)
+        form = TaskForm(request.POST)
         files = request.FILES.getlist('files')
         
         if form.is_valid():
@@ -324,7 +362,8 @@ class AddTaskView(GeneralView):
             time = form.cleaned_data['due_time'] or '23:59'
 
             if date:
-                datetime_field = datetime.datetime.fromisoformat(f'{date}T{time}')
+                datetime_field = timezone.make_aware(datetime.datetime.fromisoformat(f'{date}T{time}'))
+                # datetime_field = timezone.datetime.fromisoformat(f'{date}T{time}')
             else:
                 datetime_field = None
             
@@ -332,7 +371,7 @@ class AddTaskView(GeneralView):
                 title=title,
                 description=description,
                 due_datetime=datetime_field,
-                clas=Clas.objects.get(pk=clas_id)
+                clas=self.clas
             )
 
             for file in files:
@@ -347,60 +386,21 @@ class TaskDetailView(GeneralView):
         clas = get_object_or_404(Clas, pk=clas_id)
         submitted_files = task.submitted_files.filter(uploader=request.user)
         is_submitted = task.users_submitted.filter(pk=request.user.id).exists()
+        is_returned = task.user_task_returned.filter(pk=request.user.id).exists()
 
         return render(request, self.template_name, {
             'clas': clas,
             'task': task,
-            'work_files': submitted_files,
+            'submission_files': submitted_files,
             'is_submitted': is_submitted,
             'is_add': not submitted_files.exists() and not is_submitted,
+            'is_returned': is_returned,
             'page_name': 'instruction'
         })
 
-class AddTaskSubmitView(GeneralView):
-    def post(self, request, clas_id, task_id):
-        task = Task.objects.get(pk=task_id)
-        files = request.FILES.getlist('work-files')
-
-        for file in files:
-            TaskSubmitFile.objects.create(filename=file.name, file=file, task=task, uploader=request.user)
-        
-        return HttpResponseRedirect(reverse('task-detail', args=(clas_id, task_id,)))
-
-@login_required
-def join_clas(request):
-    if not request.body:
-        return JsonResponse({
-                'error': 'Body cannot empty',
-            },
-            status=403
-        )
-        
-    data = json.loads(request.body)
-    clas_code = data.get('clas_code')
-    search_clas_code = Clas.objects.filter(clas_code=clas_code).first()
-
-    if search_clas_code == None:
-        return JsonResponse({ 'error': 'Code not match any class code' }, status=404)
-    if search_clas_code.members.filter(pk=request.user.id):
-        return JsonResponse({ 'error': 'You already join' }, status=404)
-
-    if search_clas_code.author.id == request.user.id:
-        return JsonResponse({ 'error': 'You author this class' }, status=404)
-
-    search_clas_code.members.add(request.user)
-    return JsonResponse({
-                'success': 'Success',
-                'data': {
-                    'id': search_clas_code.id
-                }
-            },
-            status=201
-        )
-
 class AddTaskFileView(GeneralView):
     def post(self, request, clas_id, task_id):
-        files = request.FILES.getlist('work-files')
+        files = request.FILES.getlist('file-submitted-task')
         task = Task.objects.get(pk=task_id)
 
         for file in files:
@@ -409,7 +409,7 @@ class AddTaskFileView(GeneralView):
 
 class ChangeTaskFileView(GeneralView):
     def post(self, request, clas_id, task_id):
-        files = request.FILES.getlist('work-files')
+        files = request.FILES.getlist('file-submitted-task')
         task = Task.objects.get(pk=task_id)
 
         task.submitted_files.filter(uploader=request.user).delete()
@@ -441,23 +441,24 @@ class UnSubmitTaskView(GeneralView):
         task.users_submitted.remove(request.user)
         return redirect('task-detail', clas_id, task_id, permanent=True)
 
-class TaskSubmission(GeneralView):
+class TaskSubmissionView(GeneralView):
     template_name = 'classroom/task-submission.html'
 
     def get(self, request, clas_id, task_id):
         task = Task.objects.get(pk=task_id)
         clas = Clas.objects.get(pk=clas_id)
-        user_submitted = task.users_submitted.all()
+        user_submitted = task.users_submitted.exclude(returned_task=task).all()
         return render(request, self.template_name, {
             'clas': clas,
             'task': task,
             'page_name': 'submission',
             'users_submitted': user_submitted,
-            'users_assigned': User.objects.exclude(Q(submitted_tasks=task) | Q(clases=task.clas)).filter(clas_members=clas).all()
+            'users_assigned': task.users_assigned(clas)
+            # 'users_assigned': User.objects.exclude(Q(submitted_tasks=task) | Q(clases=task.clas)).filter(clas_members=clas).all()
         })
         # Q(author__id=request.user.id) | Q(members__id=request.user.id)
 
-class TaskSubmissionDetail(View):
+class TaskSubmissionDetailView(View):
     template_name = 'classroom/task-submission-detail.html'
     def get(self, request, clas_id, task_id, user_id):
         task = Task.objects.get(pk=task_id)
