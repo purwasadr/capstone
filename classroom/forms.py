@@ -1,12 +1,7 @@
 from django import forms
 
 
-class AddClasForm(forms.Form):
-    def widget_common():
-        return forms.TextInput(
-            attrs={'class': 'form-control'}
-        )
-
+class ClasForm(forms.Form):
     name = forms.CharField(
         max_length=255,
         label='Name',
@@ -26,10 +21,12 @@ class AddClasForm(forms.Form):
             attrs={'class': 'form-control'}
         ))
     room = forms.CharField(max_length=255, required=False, label='Room',
-        widget=widget_common())
+        widget=forms.TextInput(
+            attrs={'class': 'form-control'}
+        ))
 
 
-class AddMaterialForm(forms.Form):
+class MaterialForm(forms.Form):
     title = forms.CharField(
         max_length=255,
         label='Title',
@@ -42,7 +39,8 @@ class AddMaterialForm(forms.Form):
         label='Description',
         widget=forms.Textarea(
             attrs={'class': 'form-control', 'rows': '4'}
-        )
+        ),
+        required=False
     )
     files = forms.FileField(
         widget=forms.ClearableFileInput(
@@ -51,7 +49,7 @@ class AddMaterialForm(forms.Form):
         required=False
     )
 
-class AddTaskForm(forms.Form):
+class TaskForm(forms.Form):
     title = forms.CharField(
         max_length=255,
         label='Title',
@@ -64,7 +62,8 @@ class AddTaskForm(forms.Form):
         label='Description',
         widget=forms.Textarea(
             attrs={'class': 'form-control', 'rows': '4'}
-        )
+        ),
+        required=False
     )
     due_date = forms.DateField(initial='No due date',
         label='Date',
