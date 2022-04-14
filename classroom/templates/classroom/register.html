@@ -2,7 +2,7 @@
 
 {% block body %}
     <div class="row justify-content-center">
-        <div class="col-md-7">
+        <div class="col-md-5">
             <h4 class="text-center">Register</h4>
             <form action="{% url 'register' %}" method="post">
                 {% csrf_token %}
@@ -22,9 +22,8 @@
                     <label class="form-label" for="confirmation">Confirm Password</label>
                     <input class="form-control" type="password" name="confirmation">
                 </div>
-                <input class="btn btn-primary mb-3" type="submit" value="Register">
-        
-                <span>Already have an account? <a href="{% url 'login' %}">Login.</a></span>
+                <span>Already have an account? <a class="text-decoration-none" href="{% url 'login' %}">Login.</a></span>
+                <input class="btn btn-primary mb-3 mt-3 w-100" type="submit" value="Register">
             </form>
         </div>
     </div>
