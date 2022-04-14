@@ -1,14 +1,14 @@
-{% extends 'classroom/layout.html' %}
+{% extends 'classroom/layout-main.html' %}
 {% block body %}
 
 <div class="row">
     <div class="col-lg-8">
         <h3 class="mb-0">{{ user_submission.username }}</h3>
-        <div class="mb-3">{% if is_user_submit %}Turned in{% else %}Assigned{% endif %}</div>
+        <div class="mb-3">{% if task_user_is_returned %}Returned{% elif is_user_submit %}Turned in{% else %}Assigned{% endif %}</div>
 
-        <div class="row">
+        <div class="row gx-2">
             {% for file in submitted_files %}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card w-100 flex-row mb-2">
                     <div class="card-header bg-transparent rounded-0 border-bottom-0 border-end px-3">
                         <div class="" style="width: 38px; padding-top: 2px; padding-bottom: 2px;">
@@ -20,7 +20,7 @@
                     <div class="card-body d-flex flex-column justify-content-center">
                         <div class="line-clamp-1 small">{{ file.filename }}</div>
                     </div>
-                    <a href="" class="stretched-link"></a>
+                    <a href="{% url 'task-submission-file' file.id %}" class="stretched-link"></a>
                 </div>
             </div>
         {% empty %}
