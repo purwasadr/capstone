@@ -5,6 +5,7 @@ import string
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.timezone import now
+from django.db.models import Q
 
 def generate_file_code():
     length = 40
@@ -69,6 +70,9 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+    def users_assigned(self, clas: Clas):
+        return User.objects.exclude(Q(submitted_tasks=self) | Q(clases=self.clas)).filter(clas_members=clas).all()
 
 class MaterialFile(models.Model):
     filename = models.CharField(max_length=3000, default='')
