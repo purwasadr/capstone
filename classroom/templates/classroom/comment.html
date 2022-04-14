@@ -1,8 +1,5 @@
-{% load tz %}
-{% localtime on %}
-
+{% load humanize %}
 <div class="comment mb-2">
-    <span class="comment-username fw-medium">{{ comment.author.username }}</span> <span class="comment-time small">{{ comment.created_at|localtime }}</span>
+    <span class="comment-username fw-medium">{{ comment.author.username }}</span> <span class="comment-time text-secondary small">{{ comment.created_at|naturaltime }}</span>
     <div class="comment-content">{{ comment.text }}</div>
 </div>
-{% endlocaltime%}
