@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const elCommentSubmit = document.querySelectorAll('.comment-submit')
+    const elCommentSubmit = document.querySelectorAll('.comment-submit');
 
     if (elCommentSubmit.length > 0) {
         elCommentSubmit.forEach(e => {
@@ -19,20 +19,20 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     }
 
-    const formJoinClas = document.querySelector('#form-join-clas')
+    const formJoinClas = document.querySelector('#form-join-clas');
     
     if (formJoinClas) {
         formJoinClas.addEventListener('submit', e => {
-            e.preventDefault()
-            joinClas()
+            e.preventDefault();
+            joinClas();
         })
     }
 
-    const modalJoinClas = document.querySelector('#modal-join-clas')
+    const modalJoinClas = document.querySelector('#modal-join-clas');
     if (modalJoinClas) {
-        modalJoinClas.addEventListener('hidden.bs.modal', function (event) {
-            const inputClassCode = document.querySelector('#input_code')
-            const invalidFeedback = document.querySelector('#invalid-input_code')
+        modalJoinClas.addEventListener('hidden.bs.modal', () => {
+            const inputClassCode = document.querySelector('#input_code');
+            const invalidFeedback = document.querySelector('#invalid-input_code');
     
             inputClassCode.value = '';
             inputClassCode.classList.remove('is-invalid');
@@ -47,26 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputDueDatetime = document.querySelector('#due_datetime');
         inputDueDate.addEventListener('change', (e) => {
             if (!inputDueDate.value) {
-                inputDueDatetime.value = 'No due time'
+                inputDueDatetime.value = 'No due time';
             } else {
                 inputDueDatetime.value = inputDueDate.value + ' ' + inputDueTime.value;
             }
-        })
+        });
 
         inputDueTime.addEventListener('change', (e) => {
             if (!inputDueDate.value) {
-                inputDueDatetime.value = 'No due time'
+                inputDueDatetime.value = 'No due time';
             } else {
                 inputDueDatetime.value = inputDueDate.value + ' ' + inputDueTime.value;
             }
-        })
+        });
 
-        const btnClearDueDateTime = document.querySelector('#btn-clear-due-datetime')
+        const btnClearDueDateTime = document.querySelector('#btn-clear-due-datetime');
         btnClearDueDateTime.addEventListener('click', (e) => {
-            inputDueDate.value = ''
-            inputDueTime.value = ''
-            inputDueDatetime.value = 'No due time'
-        })
+            inputDueDate.value = '';
+            inputDueTime.value = '';
+            inputDueDatetime.value = 'No due time';
+        });
     }
 
 });
@@ -91,7 +91,7 @@ function submitComment(elTarget) {
         
         getComments(elTarget, isExpand);
         elInput.value = '';
-    })
+    });
 }
 
 function makeComment(username, createdAt,text) {
@@ -102,7 +102,7 @@ function makeComment(username, createdAt,text) {
 
     elParent.classList.add('comment', 'mb-2');
     elUsername.classList.add('fw-medium');
-    elCreatedAt.classList.add('small');
+    elCreatedAt.classList.add('small', 'text-secondary');
 
     elUsername.innerText = username + ' ';
     elCreatedAt.innerText = createdAt;
@@ -117,7 +117,7 @@ function toogleExpandComment(elToogleExpand) {
     const isExpand = elCommentParent.dataset.commentExpand;
 
     if (isExpand === 'true') {
-        elToogleExpand.innerText = 'Show all'
+        elToogleExpand.innerText = 'Show all';
         elCommentParent.dataset.commentExpand = 'false';
         getComments(elToogleExpand, false);
     } else {
@@ -147,7 +147,7 @@ function getComments(elTarget, isExpand) {
 
         const count = response.count;
         const elToogleExpand = elCardMaterial.querySelector('.comment-expand-toogle');
-        console.log(count)
+        console.log(count);
 
         if (count > 0) {
             elCommentParent.classList.add('card-footer', 'pt-3');
