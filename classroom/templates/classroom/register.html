@@ -3,6 +3,13 @@
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
             <h4 class="text-center">Register</h4>
             <form action="{% url 'register' %}" method="post">
                 {% csrf_token %}
@@ -23,7 +30,7 @@
                     <input class="form-control" type="password" name="confirmation">
                 </div>
                 <span>Already have an account? <a class="text-decoration-none" href="{% url 'login' %}">Login.</a></span>
-                <input class="btn btn-primary mb-3 mt-3 w-100" type="submit" value="Register">
+                <input class="btn btn-primary mt-3 w-100" type="submit" value="Register">
             </form>
         </div>
     </div>
