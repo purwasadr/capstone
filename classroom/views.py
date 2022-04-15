@@ -27,7 +27,6 @@ def generate_clas_code():
 def context_breadcrumb(request_path: str, clas: Clas, task: Task | None = None):
     list_path = request_path.rsplit('/')
     breadcrumbs = []
-    print(len(list_path))
     for index, split_path in enumerate(list_path):
         if index == 0:
             breadcrumbs.append({ 'name': 'Home', 'url': reverse('index') })
