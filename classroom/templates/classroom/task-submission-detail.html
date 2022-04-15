@@ -1,4 +1,5 @@
 {% extends 'classroom/layout-main.html' %}
+
 {% block body %}
 
 <div class="row">
@@ -32,7 +33,7 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="mb-3">Return Task</h4>
-                <form action="{% url 'task-submission-return' clas_id task_id user_id %}" method="post">
+                <form action="{% url 'task-submission-return' clas.id task.id user_id %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-primary w-100" {% if task_user_is_returned or not is_user_submit %}disabled{% endif %}>Return</button>
                 </form>
