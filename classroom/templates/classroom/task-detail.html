@@ -1,4 +1,7 @@
 {% extends 'classroom/layout-main.html' %}
+{% load humanize %}
+
+{% block title %}{{ task.title }}{% endblock title %}
 {% block body %}
 
     {% if task.clas.author == request.user %}    
@@ -7,7 +10,7 @@
     <div class="row">
         <div class="{% if task.clas.author.id == request.user.id %}col-lg-12{% else %}col-lg-8{% endif %}">
             <h3 class="mb-1">{{ task.title }}</h3>
-            <span class="fw-medium">{{ task.clas.author.username }}</span> <span class="small text-secondary">{{ task.created_at }}</span>
+            <span>{{ task.clas.author.username }}</span> <span class="small text-secondary">{{ task.created_at|naturaltime }}</span>
             {% if task.due_datetime %}
                 <div class="small">Due time {{ task.due_datetime }}</div>
             {% endif %}
