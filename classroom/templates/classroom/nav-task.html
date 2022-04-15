@@ -1,11 +1,11 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <ul class="nav nav-pills nav-justified mt-5 mb-4">
+        <ul class="nav nav-pills nav-justified mb-4">
             <li class="nav-item">
                 <a class="nav-link {% if page_name == 'instruction' %}active{% endif %} " aria-current="page" href="{% url 'task-detail' clas.id task.id %}">Instruction</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if page_name == 'submission' %}active{% endif %}" href="{% url 'task-submission' clas.id task.id %}">Student work</a>
+                <a class="nav-link {% if page_name == 'submission' %}active{% endif %}" href="{% url 'task-submission' clas.id task.id %}">Student task</a>
             </li>
         </ul>
     </div>
