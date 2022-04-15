@@ -43,7 +43,7 @@ class Clas(models.Model):
 class Material(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=3000, blank=True)
-    created_at = models.DateTimeField(blank=True)
+    created_at = models.DateTimeField(default=now)
     clas = models.ForeignKey(Clas, default='', on_delete=models.CASCADE, related_name='materials')
 
     def __str__(self):
