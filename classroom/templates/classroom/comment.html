@@ -1,5 +1,5 @@
 {% load humanize %}
 <div class="comment mb-2">
-    <span class="comment-username fw-medium">{{ comment.author.username }}</span> <span class="comment-time text-secondary small">{{ comment.created_at|naturaltime }}</span>
-    <div class="comment-content">{{ comment.text }}</div>
+    <span class="fw-medium">{{ comment.author.username }}</span> <span class="text-secondary small">{{ comment.created_at|naturaltime }}</span>
+    <div>{{ comment.text }}</div>
 </div>
