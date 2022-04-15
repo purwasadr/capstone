@@ -24,6 +24,19 @@ def generate_clas_code():
     random.seed = (os.urandom(1024))
     return ''.join(random.choice(chars) for i in range(length))
 
+def context_breadcrumb(request_path: str, clas: Clas, task: Task | None = None):
+    list_path = request_path.rsplit('/')
+    breadcrumbs = []
+    print(len(list_path))
+    for index, split_path in enumerate(list_path):
+        if index == 0:
+            breadcrumbs.append({ 'name': 'Home', 'url': reverse('index') })
+        elif index == 2 and len(list_path) > 3:
+            breadcrumbs.append({ 'name': clas.name, 'url': reverse('materials', args=(clas.id,)) })
+        elif index == 4 and len(list_path) > 5:
+            breadcrumbs.append({ 'name': task.title, 'url': reverse('task-detail', args=(clas.id, task.id)) })
+    return breadcrumbs
+
 class AuthView(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -80,17 +93,15 @@ class RegisterView(AuthView):
         confirmation = request.POST['confirmation']
 
         if password != confirmation:
-            return render(request, 'classroom/register.html', {
-                'message': 'Passwords must match.'
-            })
+            messages.error(request, 'Passwords must match.')
+            return render(request, 'classroom/register.html')
 
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, 'classroom/register.html', {
-                'message': 'Username already taken.'
-            })
+            messages.error(request, 'Username already taken.')
+            return render(request, 'classroom/register.html')
 
         login(request, user)
         return redirect('index')
@@ -99,13 +110,11 @@ class RegisterView(AuthView):
 class IndexView(GeneralView):
     def get(self, request):
         # clases = Clas.objects.filter(Q(author__id=request.user.id) | Q(members__id=request.user.id)).all()
+        # clases = Clas.objects.filter(Q(author__id=request.user.id) | Q(members__id=request.user.id)).distinct()
         clases = request.user.clases_owned_and_joined()
-        # clases = request.user.clas_members.all().union(request.user.clases.all())
-        # clases = Clas.objects.filter(Q(author__id=request.user.id)).all()
         return render(request, 'classroom/index.html', {
             'clases': clases
         })
-
 
 class AddClas(GeneralView):
     template_path = 'classroom/add-clas.html'
@@ -128,6 +137,12 @@ class AddClas(GeneralView):
                 author = request.user
             )
             return HttpResponseRedirect(reverse('index'))
+
+        for field in form.errors:
+            form[field].field.widget.attrs['class'] = 'form-control is-invalid'
+        
+        return render(request, self.template_path, { 'form': form })
+        
 
 class EditClasView(ClasRouteView):
     def post(self, request, clas_id):
@@ -210,18 +225,6 @@ class MaterialsView(ClasRouteView):
             'breadcrumb': context_breadcrumb(request.path, clas)
         })
 
-def context_breadcrumb(request_path: str, clas: Clas):
-    list_path = request_path.rsplit('/')
-    breadcrumbs = []
-    for index, split_path in enumerate(list_path):
-        if index == 0:
-            breadcrumbs.append({ 'name': 'Home', 'url': reverse('index') })
-        elif index == 2:
-            if split_path.isdigit():
-                breadcrumbs.append({ 'name': clas.name, 'url': reverse('materials', args=(clas.id,)) })
-    return breadcrumbs
-
-
 class AddMaterialView(ClasRouteView):
     template_name = 'classroom/add-material.html'
 
@@ -244,30 +247,50 @@ class AddMaterialView(ClasRouteView):
                 title=title,
                 description=description,
                 created_at=timezone.now(),
-                clas=Clas.objects.get(pk=clas_id)
+                clas=self.clas
             )
 
             for file in files:
                 MaterialFile.objects.create(filename=file.name, file=file, material=material)
             return HttpResponseRedirect(reverse('materials', args=(clas_id,)))
 
+        for field in form.errors:
+            form[field].field.widget.attrs['class'] = 'form-control is-invalid'
+
+        return render(request, self.template_name, {
+            'clas': self.clas,
+            'form': form
+        })
+
+class DeleteMaterialView(ClasRouteView):
+    def post(self, request, clas_id, material_id):
+        clas = self.clas
+
+        if clas.author != request.user:
+            return HttpResponseForbidden()
+
+        material = get_object_or_404(Material, pk=material_id)
+        material.delete()
+
+        return redirect('materials', clas_id)
+
 class MaterialFileView(GeneralView):
     def get(self, request, material_id):
-        material = MaterialFile.objects.get(pk=material_id)
+        material = get_object_or_404(MaterialFile, pk=material_id)
         file = material.file
 
         return FileResponse(file, as_attachment=True, filename=material.filename)
 
 class TaskFileView(GeneralView):
     def get(self, request, task_id):
-        task = TaskFile.objects.get(pk=task_id)
+        task = get_object_or_404(TaskFile, pk=task_id)
         file = task.file
 
         return FileResponse(file, as_attachment=True, filename=task.filename)
 
 class TaskSubmissionFileView(GeneralView):
-    def get(self, request, task_id):
-        task_submission_file = get_object_or_404(TaskSubmitFile, pk=task_id)
+    def get(self, request, task_submission_id):
+        task_submission_file = get_object_or_404(TaskSubmitFile, pk=task_submission_id)
         file = task_submission_file.file
 
         return FileResponse(file, as_attachment=True, filename=task_submission_file.filename)
@@ -340,6 +363,7 @@ class TaskView(ClasRouteView):
             'form': form,
             'tasks': tasks,
             'page': 'tasks',
+            'breadcrumb': context_breadcrumb(request.path, clas)
         })
 
 class AddTaskView(ClasRouteView):
@@ -377,25 +401,44 @@ class AddTaskView(ClasRouteView):
             for file in files:
                 TaskFile.objects.create(filename=file.name, file=file, task=task)
             return HttpResponseRedirect(reverse('tasks', args=(clas_id,)))
+        
+        messages.error(request, 'Error submit data')
+        return render(request, self.template_name, {
+            'clas': self.clas,
+            'form': TaskForm(),
+        })
 
-class TaskDetailView(GeneralView):
+class DeleteTaskView(ClasRouteView):
+    def post(self, request, clas_id, task_id):
+        clas = self.clas
+
+        if clas.author != request.user:
+            return HttpResponseForbidden()
+
+        task = get_object_or_404(Task, pk=task_id)
+        task.delete()
+
+        return redirect('tasks', clas_id)
+
+class TaskDetailView(ClasRouteView):
     template_name = 'classroom/task-detail.html'
 
     def get(self, request, clas_id, task_id):
+        clas = self.clas
         task = get_object_or_404(Task, pk=task_id)
-        clas = get_object_or_404(Clas, pk=clas_id)
-        submitted_files = task.submitted_files.filter(uploader=request.user)
+        submission_files = task.submitted_files.filter(uploader=request.user)
         is_submitted = task.users_submitted.filter(pk=request.user.id).exists()
         is_returned = task.user_task_returned.filter(pk=request.user.id).exists()
 
         return render(request, self.template_name, {
             'clas': clas,
             'task': task,
-            'submission_files': submitted_files,
+            'submission_files': submission_files,
             'is_submitted': is_submitted,
-            'is_add': not submitted_files.exists() and not is_submitted,
+            'is_add': not submission_files.exists() and not is_submitted,
             'is_returned': is_returned,
-            'page_name': 'instruction'
+            'page_name': 'instruction',
+            'breadcrumb': context_breadcrumb(request.path, clas)
         })
 
 class AddTaskFileView(GeneralView):
@@ -439,48 +482,60 @@ class UnSubmitTaskView(GeneralView):
         task = Task.objects.get(pk=task_id)
 
         task.users_submitted.remove(request.user)
-        return redirect('task-detail', clas_id, task_id, permanent=True)
+        return redirect('task-detail', clas_id, task_id)
 
-class TaskSubmissionView(GeneralView):
+class TaskSubmissionView(ClasRouteView):
     template_name = 'classroom/task-submission.html'
 
     def get(self, request, clas_id, task_id):
-        task = Task.objects.get(pk=task_id)
-        clas = Clas.objects.get(pk=clas_id)
+        clas = self.clas
+
+        if clas.author != request.user:
+            return HttpResponseForbidden()
+
+        task = get_object_or_404(Task, pk=task_id)
         user_submitted = task.users_submitted.exclude(returned_task=task).all()
         return render(request, self.template_name, {
             'clas': clas,
             'task': task,
             'page_name': 'submission',
             'users_submitted': user_submitted,
-            'users_assigned': task.users_assigned(clas)
+            'users_assigned': task.users_assigned(clas),
+            'breadcrumb': context_breadcrumb(request.path, clas)
             # 'users_assigned': User.objects.exclude(Q(submitted_tasks=task) | Q(clases=task.clas)).filter(clas_members=clas).all()
         })
         # Q(author__id=request.user.id) | Q(members__id=request.user.id)
 
-class TaskSubmissionDetailView(View):
+class TaskSubmissionDetailView(ClasRouteView):
     template_name = 'classroom/task-submission-detail.html'
     def get(self, request, clas_id, task_id, user_id):
-        task = Task.objects.get(pk=task_id)
+        clas = self.clas
+        task = get_object_or_404(Task, pk=task_id)
+
         submitted_files = task.submitted_files.filter(uploader=user_id)
         user_submission = task.clas.members.filter(pk=user_id).first()
         task_user_is_returned = task.user_task_returned.filter(pk=user_id).exists()
         is_user_submit = task.users_submitted.filter(pk=user_id).exists()
         return render(request, self.template_name, {
-            'clas_id': clas_id,
-            'task_id': task_id,
+            'clas': clas,
             'user_id': user_id,
             'task': task,
             'submitted_files': submitted_files,
             'task_user_is_returned': task_user_is_returned,
             'user_submission': user_submission,
-            'is_user_submit': is_user_submit
+            'is_user_submit': is_user_submit,
+            'breadcrumb': context_breadcrumb(request.path, clas, task=task)
         })
 
-class ReturnTaskView(View):
+class ReturnTaskView(GeneralView):
     def post(self, request, clas_id, task_id, user_id):
-        task = Task.objects.get(pk=task_id)
+        clas = get_object_or_404(Clas, pk=clas_id)
+
+        if clas.author != request.user:
+            return HttpResponseForbidden()
+
         user = User.objects.get(pk=user_id)
+        task = Task.objects.get(pk=task_id)
         task.user_task_returned.add(user)
 
         return redirect('task-submission-detail', clas_id, task_id, user_id)
