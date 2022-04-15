@@ -1,1 +1,1 @@
-django-cleanup
+django-cleanup==6.0.0
