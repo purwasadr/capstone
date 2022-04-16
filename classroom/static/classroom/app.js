@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
-// document.querySelector('#sss').setAttribute
+
 function submitComment(elTarget) {
     const { elCardMaterial, clasId, id, csrftoken } = cardFetchProperties(elTarget);
 
