@@ -1,10 +1,10 @@
 # CS50W Web Programming with Python and JavaScript
 
 ## About this app
-I created an application similar to Google Classroom. The reason I made this application is because I think this application is quite challenging to make. In this application teachers can create classes, then post materials and assignments. Meanwhile, students can comment on material posts and can submit assignments
+I created an application similar to Google Classroom. The reason I made this application is because I think this application is quite challenging to make. In this application teachers can create classes, then post materials and assignments. Meanwhile, students can comment on material posts and can submit assignments.
 
 ## Distinctiveness and Complexity
-Even though I made an application like Google Classroom, my application looks not completely the same as Google Classroom. In terms of complexity, this application uses quite complicated queries to the database, many display changes in the same page, and there are many url routes
+Even though I made an application like Google Classroom, my application looks not completely the same as Google Classroom. In terms of complexity, this application uses quite complicated queries to the database, many display changes in the same page, and there are many url routes.
 
 ## Files explanation
 * views.py
