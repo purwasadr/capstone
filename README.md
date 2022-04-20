@@ -4,7 +4,7 @@
 I created an application similar to Google Classroom. The reason I made this application is because I think this application is quite challenging to make. In this application teachers can create classes, then post materials and assignments. Meanwhile, students can comment on material posts and can submit assignments.
 
 ## Distinctiveness and Complexity
-Saya yakin aplikasi saya memenuhi persyaratan yang ditentukan karena aplikasi saya berbeda dengan aplikasi sebelumnya yang ada di course ini dalam hal tema, fitur, struktur database, dan kompleksitas . Aplikasi ini dibuat dengan menggunakan Django untuk membuat backend yang terdiri dari 9 model dan banyak halaman. Sedangkan untuk front-end, saya menggunakan Javascript for post, retrieve, and expand comments on material posts, display dialogs and clean up for dues in `add-task.html`, menampilkan dialog untuk mengedit dan menampilkan informasi kelas, and for join classes. 
+Saya yakin aplikasi saya memenuhi persyaratan yang ditentukan karena aplikasi saya berbeda dengan aplikasi sebelumnya yang ada di course ini dalam hal tema, fitur, struktur database, dan . untuk tema, aplikasi saya memiliki tema tentang pendidikan yang tentu saja berbeda dengan project-project sebelumnya di course ini. Dalam hal fitur, aplikasi ini memiliki beberapa fitur seperti membuat kelas, menambahkan tugas(untuk guru/pembuat), menambahkan materi(untuk guru/pembuat), mengumpulkan tugas(untuk murid/member), memberi komentar pada postingan materi, dan mengembalikan tugas(untuk guru/pembuat). Selain itu, database aplikasi ini memiliki struktur yang memiliki tingkat kesulitan yang berbeda dari project-project sebelumnya di course ini, misalnya menggunakan OR dan UNION dalam mengkueri database. . Aplikasi ini dibuat dengan menggunakan Django untuk membuat backend yang terdiri dari 9 model dan banyak halaman. Sedangkan untuk front-end, saya menggunakan Javascript for post, retrieve, and expand comments on material posts, display dialogs and clean up for dues in `add-task.html`, menampilkan dialog untuk mengedit dan menampilkan informasi kelas, and for join classes. 
 
 Even though I made an application like Google Classroom, my application looks not completely the same as Google Classroom. In terms of complexity, this application uses quite complicated queries to the database, many display changes in the same page, and there are many url routes.
 
@@ -21,16 +21,16 @@ Even though I made an application like Google Classroom, my application looks no
     * Class `IndexView` used to display the main page
     * Class `AddClasView`, `EditClasView`, `DeleteClasView` for add, edit and delete classes
     * Function `join_clas` for join class with JSON request format
-    * Class MaterialsView, AddMaterialView, and DeleteMaterialView serves to display, add, and delete material
-    * Class MaterialFileView, TaskFileView, and TaskSubmissionFileView serves to download files of materials, tasks, and task submissions
-    * Function material_comment serves to add comments to material posts by accepting requests in JSON format
-    * Class TaskView, AddTaskView, and DeleteTaskView for display, add, and delete tasks
-    * Class TaskDetailView used to display details of tasks and collect assignments for users who are members
-    * Class AddTaskFileView, ChangeTaskFileView, and DeleteTaskFileView for add, replace, and clean files from task submission
-    * Class SubmitTaskView dan UnSubmitTaskView used for submitting and unsubmitting tasks
-    * Class TaskSubmissionView used to display a list of members who were given the task
-    * Class TaskSubmissionDetailView serves to display the details of submissions made by members/students
-    * Class ReturnTaskView serves to return the assignment of members/students
+    * Class `MaterialsView`, `AddMaterialView`, and `DeleteMaterialView` serves to display, add, and delete material
+    * Class `MaterialFileView`, `TaskFileView`, and `TaskSubmissionFileView` serves to download files of materials, tasks, and task submissions
+    * Function `material_comment` serves to add comments to material posts by accepting requests in JSON format
+    * Class `TaskView`, `AddTaskView`, and `DeleteTaskView` for display, add, and delete tasks
+    * Class `TaskDetailView` used to display details of tasks and collect assignments for users who are members
+    * Class `AddTaskFileView`, `ChangeTaskFileView`, and `DeleteTaskFileView` for add, replace, and clean files from task submission
+    * Class `SubmitTaskView` dan `UnSubmitTaskView` used for submitting and unsubmitting tasks
+    * Class `TaskSubmissionView` used to display a list of members who were given the task
+    * Class `TaskSubmissionDetailView` serves to display the details of submissions made by members/students
+    * Class `ReturnTaskView` serves to return the assignment of members/students
 
   * `templates/classroom`
     * `add-clas.html` to display the add class form
@@ -39,18 +39,18 @@ Even though I made an application like Google Classroom, my application looks no
     * `comment.html` to display the comment view
     * `header-info.html` to display card headers on material and task pages
     * `index.html` to display the main page
-    * layout-auth.html to create authorization display section
-    * layout-main.html to create the main display section
-    * layout.html as base view
-    * login.html to display the login form
-    * materials.html to display the material list
-    * nav-clas.html to navigate between material pages and tasks
-    * nav-task.html for navigation between task detail pages and task submission lists
-    * register.html to display the registration form
-    * task-detail.html to display the details of the task
-    * task-submission-detail.html to display the details of the submission
-    * task-submission.html to display a list of assignment submissions
-    * tasks.html to display task list
+    * `layout-auth.html` to create authorization display section
+    * `layout-main.html` to create the main display section
+    * `layout.html` as base view
+    * `login.html` to display the login form
+    * `materials.html` to display the material list
+    * `nav-clas.html` to navigate between material pages and tasks
+    * `nav-task.html` for navigation between task detail pages and task submission lists
+    * `register.html` to display the registration form
+    * `task-detail.html` to display the details of the task
+    * `task-submission-detail.html` to display the details of the submission
+    * `task-submission.html` to display a list of assignment submissions
+    * `tasks.html` to display task list
 
   * `models.py`
     * Function `generate_file_code` for generate random filename
@@ -78,15 +78,15 @@ Even though I made an application like Google Classroom, my application looks no
 
 * `capstone`
   * `settings.py`
-    * Di `INSTALLED_APPS` saya menambahkan `'classroom'` agar aplikasi saya terdaftar dan `'django_cleanup.apps.CleanupConfig'` untuk mendaftarkan paket django-cleanup ke aplikasi saya
-    * `AUTH_USER_MODEL = 'classroom.User'` untuk mengganti model pengguna default ke model pengguna milik saya sendiri
-    * `MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')` for change server path to store files in the computer
-    * `MEDIA_URL = '/media/'` for change the reference URL for browser to access the files over Http
-    * menambakan `LOGIN_URL = '/login'` agar saat menggunakan @loginrequired decorator dapat disesuaikan URL nya
-    * `MESSAGE_TAGS = { messages.ERROR: 'danger' }` untuk mengganti error variabel dengan 'danger'
-    * `import os`, `from pathlib import Path`, dan `from django.contrib.messages import constants as messages` untuk mengimport package
+    * Di `INSTALLED_APPS` i added `'classroom'` to register my app, `'django_cleanup.apps.CleanupConfig'` to register django-cleanup package to my app, and `'django.contrib.humanize'` for register Django template filters
+    * `AUTH_USER_MODEL = 'classroom.User'` to change the default user model to my own user model
+    * `MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')` to change the server path to save files on the computer
+    * `MEDIA_URL = '/media/'` to change the reference URL for the browser to access files via Http
+    * `LOGIN_URL = '/login'` untuk mengganti URL yang diarahkan untuk login saat menggunakan @loginrequired decorator
+    * `MESSAGE_TAGS = { messages.ERROR: 'danger' }` for change the default tags for message level
+    * `import os`, `from pathlib import Path`, and `from django.contrib.messages import constants as messages` to import packages
 
-  * urls.py
+  * `urls.py`
 
 ## How to run the application
 * Install the project dependencies with `pip install -r requirements.txt`
