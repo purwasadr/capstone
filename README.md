@@ -4,13 +4,13 @@
 I created an application similar to Google Classroom. Even though I made an application like Google Classroom, my application looks not completely the same as Google Classroom. The reason I made this application is because I think this application is quite challenging to make. In this application teachers can create classes, then post materials and assignments. Meanwhile, students can comment on material posts and can submit assignments.
 
 ## Distinctiveness and Complexity
-Saya yakin aplikasi saya memenuhi persyaratan yang ditentukan karena aplikasi saya berbeda dengan aplikasi sebelumnya yang ada di course ini dalam hal tema, fitur, dan struktur database. Untuk tema, aplikasi saya memiliki tema tentang pendidikan yang tentu saja berbeda dengan project-project sebelumnya di course ini. Dalam hal fitur, aplikasi ini memiliki beberapa fitur seperti membuat kelas, menambahkan tugas(untuk guru/pembuat), menambahkan materi(untuk guru/pembuat), mengumpulkan tugas(untuk murid/member), memberi komentar pada postingan materi, dan mengembalikan tugas(untuk guru/pembuat). Selain itu, database aplikasi ini memiliki struktur yang memiliki tingkat kesulitan yang berbeda dari project-project sebelumnya di course ini, sehingga terdapat penggunaan `OR` dan `UNION` dalam kueri database aplikasi ini.
+I believe my application meets the specified requirements because my application differs from previous applications in this course in terms of themes, features and database structure. As for the theme, my application has a theme about education which is of course different from other projects in this course. In terms of features, this application has several features such as creating classes, adding assignments (for teachers/authors), adding materials (for teachers/authors), collecting assignments (for students/members), commenting on material posts, and returning assignments (for teachers/authors). In addition, this application database has a structure that has a different level of difficulty from the other projects in this course, so there is the use of `OR` and `UNION` in this application's database queries.
 
-Aplikasi ini dibuat dengan menggunakan Django untuk membuat backend yang terdiri dari 9 model, 33 routes, dan banyak halaman. Sedangkan untuk front-end, saya menggunakan Javascript for post, retrieve, and expand comments on material posts, display dialogs and clean up for dues in `add-task.html`, menampilkan dialog untuk mengedit dan menampilkan informasi kelas, and for join classes. Semua halaman di aplikasi ini mobile-responsive dengan bantuan Bootstrap dan CSS
+This application was built using Django to create a backend consisting of 9 models, 33 routes, and many pages. For the front-end, I use Javascript to post, retrieve, and expand comments on material posts, display dialogs and clear dues in `add-task.html`, display dialogs for editing and displaying class information, and for joining classes. Semua halaman di aplikasi ini mobile-responsive dengan bantuan Bootstrap dan CSS
 
 ## Files explanation
 * `classroom` main application directory
-  * `admin.py` registering Clas, Material, MaterialComment, MaterialFile, Task, TaskFile, TaskSubmit, TaskSubmitFile and User agar dapat diakses di admin page
+  * `admin.py` for registration of `Class`, `Material`, `MaterialComment`, `MaterialFile`, `Task`, `TaskFile`, `TaskSubmit`, `TaskSubmitFile` and `User` models for access in admin page
   * `views.py`
     * Function `generate_clas_code` for generate class code randomly
     * Function `context_breadcrumb` serves to create a list of breadcrumbs in the dict data type so that the template can directly display it
@@ -67,7 +67,7 @@ Aplikasi ini dibuat dengan menggunakan Django untuk membuat backend yang terdiri
   * `static/classroom`
     * `app.js` for post, retrieve, and expand comments on material posts via ajax, display dialogs and clean up for dues in add-task.html, and to join classes via ajax
     * `styles.css` for styling website
-* `capstone`
+* `capstone` project directory
   * `settings.py`
     * In `INSTALLED_APPS` i added `'classroom'` to register my app, `'django_cleanup.apps.CleanupConfig'` to register django-cleanup package to my app, and `'django.contrib.humanize'` for register Django template filters
     * `AUTH_USER_MODEL = 'classroom.User'` to change the default user model to my own user model
@@ -77,7 +77,7 @@ Aplikasi ini dibuat dengan menggunakan Django untuk membuat backend yang terdiri
     * `MESSAGE_TAGS = { messages.ERROR: 'danger' }` for change the default tags for message level
     * `import os`, `from pathlib import Path`, and `from django.contrib.messages import constants as messages` to import packages
   * `urls.py`
-    * Saya menambahkan `path('', include('classroom.urls'))` to add my app's URLConf
+    * I added `path('', include('classroom.urls'))` to add my app's URLConf
 * `.gitignore` to ignore files from git
 * `requirements.txt` list all of the modules need for Django project to work
 
