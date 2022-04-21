@@ -4,14 +4,14 @@
 I created an application similar to Google Classroom. Even though I made an application like Google Classroom, my application looks not completely the same as Google Classroom. The reason I made this application is because I think this application is quite challenging to make. In this application teachers can create classes, then post materials and assignments. Meanwhile, students can comment on material posts and can submit assignments.
 
 ## Distinctiveness and Complexity
-I believe my application meets the specified requirements because my application differs from previous applications in this course in terms of themes, features and database structure. As for the theme, my application has a theme about education which is of course different from other projects in this course. In terms of features, this application has several features such as creating classes, adding assignments (for teachers/authors), adding materials (for teachers/authors), collecting assignments (for students/members), commenting on material posts, and returning assignments (for teachers/authors). In addition, this application database has a structure that has a different level of difficulty from the other projects in this course, so there is the use of `OR` and `UNION` in this application's database queries.
+I believe my application meets the specified requirements because it differs from the other projects in this course in terms of themes, features, and database structure. As for the theme, my application has a theme about education which is of course different from other projects in this course. In terms of features, this application has several features such as creating classes, adding tasks (for teachers/authors), adding materials (for teachers/authors), submit tasks (for students/members), commenting on material posts, and returning tasks (for teachers/authors). In addition, this application database has a structure that has a different level of difficulty from the other projects in this course, so there is the use of `OR` and `UNION` in this application's database queries.
 
-This application was built using Django to create a backend consisting of 9 models, 33 routes, and many pages. For the front-end, I use Javascript to post, retrieve, and expand comments on material posts, display dialogs and clear dues in `add-task.html`, display dialogs for editing and displaying class information, and for joining classes. Semua halaman di aplikasi ini mobile-responsive dengan bantuan Bootstrap dan CSS
+This application was built using Django to create a backend consisting of 9 models, 33 routes, and many pages. For the front-end, I use Javascript to post, retrieve, and expand comments on material posts, display dialogs and clear dues in `add-task.html`, display dialogs for editing and displaying class information, and for joining classes. All pages in this application are mobile-responsive using Bootstrap and CSS
 
 ## Files explanation
 * `classroom` main application directory
   * `admin.py` for registration of `Class`, `Material`, `MaterialComment`, `MaterialFile`, `Task`, `TaskFile`, `TaskSubmit`, `TaskSubmitFile` and `User` models for access in admin page
-  * `views.py`
+  * `views.py` application views
     * Function `generate_clas_code` for generate class code randomly
     * Function `context_breadcrumb` serves to create a list of breadcrumbs in the dict data type so that the template can directly display it
     * Class `AuthView` used to redirect page to index if already logged in
@@ -31,7 +31,7 @@ This application was built using Django to create a backend consisting of 9 mode
     * Class `TaskSubmissionView` used to display a list of members who were given the task
     * Class `TaskSubmissionDetailView` serves to display the details of submissions made by members/students
     * Class `ReturnTaskView` serves to return the assignment of members/students
-  * `templates/classroom`
+  * `templates/classroom` contains application templates
     * `add-clas.html` to display the add class form
     * `add-material.html` to display the add material form
     * `add-task.html` to display the add task form
@@ -50,7 +50,7 @@ This application was built using Django to create a backend consisting of 9 mode
     * `task-submission-detail.html` to display the details of the submission
     * `task-submission.html` to display a list of assignment submissions
     * `tasks.html` to display task list
-  * `models.py`
+  * `models.py` contains Django Models
     * Function `generate_file_code` for generate random filename
     * Function `material_directory_path`, `task_directory_path`, `task_submit_directory_path` for define path and filename
     * `User` model for saving user information
@@ -64,11 +64,11 @@ This application was built using Django to create a backend consisting of 9 mode
     * `TaskSubmitFile` model for save the file information that is in the assignment submission
   * `forms.py` for define forms
   * `urls.py` for all application URLs
-  * `static/classroom`
+  * `static/classroom` contains static content
     * `app.js` for post, retrieve, and expand comments on material posts via ajax, display dialogs and clean up for dues in add-task.html, and to join classes via ajax
     * `styles.css` for styling website
 * `capstone` project directory
-  * `settings.py`
+  * `settings.py` contains project settings
     * In `INSTALLED_APPS` i added `'classroom'` to register my app, `'django_cleanup.apps.CleanupConfig'` to register django-cleanup package to my app, and `'django.contrib.humanize'` for register Django template filters
     * `AUTH_USER_MODEL = 'classroom.User'` to change the default user model to my own user model
     * `MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')` to change the server path to save files on the computer
@@ -77,7 +77,7 @@ This application was built using Django to create a backend consisting of 9 mode
     * `MESSAGE_TAGS = { messages.ERROR: 'danger' }` for change the default tags for message level
     * `import os`, `from pathlib import Path`, and `from django.contrib.messages import constants as messages` to import packages
   * `urls.py`
-    * I added `path('', include('classroom.urls'))` to add my app's URLConf
+    * I added `path('', include('classroom.urls'))` to include my app's URLConf
 * `.gitignore` to ignore files from git
 * `requirements.txt` list all of the modules need for Django project to work
 
